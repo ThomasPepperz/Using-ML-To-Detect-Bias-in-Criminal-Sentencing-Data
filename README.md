@@ -293,7 +293,7 @@ sentences$race[sentences$race %in%
                  "Biracial"] = "Mixed Race"
 ```
 
-Next, `race` is transformed into a factored variable, and tabulations of the number of observations for each category are printed out to the console.
+Next, `race` is transformed into a factored variable, and tabulations of the number of observations for each category are printed out to the console. Additionally, percentages the total number of observations are calculated for each racial categories that seem particularly low after examining the table output.
 
 ```
 # Transform `race` into a factor 
@@ -309,56 +309,256 @@ R> table(sentences$race)
 
 American Indian           Asian           Black        Hispanic      Mixed Race         Unknown           White 
             120            1322          146637           38838            1091            1499           31663 
+            
+R> # Determine what percentage of all observations is "American Indian"
+R> paste0(round(nrow(sentences[sentences$race == 'American Indian',]) / nrow(sentences) * 100, 2), "%")
+[1] "0.05%"
+R> # Determine what percentage of all observations is "Asian"
+R> paste0(round(nrow(sentences[sentences$race == 'Asian',]) / nrow(sentences) * 100, 2), "%")
+[1] "0.6%"
+R> # Determine what percentage of all observations is "Mixed Race"
+R> paste0(round(nrow(sentences[sentences$race == 'Mixed Race',]) / nrow(sentences) * 100, 2), "%")
+[1] "0.49%"
+R> # Determine what percentage of all observations is "Unknown"
+R> paste0(round(nrow(sentences[sentences$race == 'Unknown',]) / nrow(sentences) * 100, 2), "%")
+[1] "0.68%"
 ```
 
+Since the categories of "American Indian" (0.05%), "Asian" (0.6%), "Mixed Race" (0.49%), and "Unknown" (0.68%), each representing approximately only one-half of a percent and collectively less than two percent of the total data (1.82% collectively), they are removed from the data set as outliers and in order to simplify the analysis when examining the feature `race`. It should be further noted that the category of "Unknown" should be removed from the data since it is not a true racial designation and is useless for analytical purposes. Without the records of `race` value "Unknown," the total data to be removed based upon `race` represents only 1.14% of the original data set's total number of observations.
 
+Before removing each racial category from the data set, the data for each category is assigned to a data frame object named after `race` value.
 
 ```
-# Remove all records where the race of the defendant is "Unknown"
+# Assign all records to a data frame where the race of the defendant is "Unknown" for future inspection
 unknown_race = 
   dplyr::filter(sentences, sentences$race == 
                   "Unknown")
-# 1,398 Records with Unknown Race
-nrow(unknown_race)
+
 # Remove records with Unknown Race from the dataframe
 sentences = 
   dplyr::filter(sentences, sentences$race != 
                   "Unknown")
-# Updated row number: 202,435 records
-nrow(sentences)
+
+# Assign all records to a data frame  where the race of the defendant is "Mixed Race" for future inspection
+mixed_race = 
+  dplyr::filter(sentences, sentences$race == 
+                  "Mixed Race")
+
+# Remove records with Mixed Race from the dataframe
+sentences = 
+  dplyr::filter(sentences, sentences$race != 
+                  "Mixed Race")
+
+# Assign all records to a data frame where the race of the defendant is "Asian" for future inspection
+asian = 
+  dplyr::filter(sentences, sentences$race == 
+                  "Asian")
+
+# Remove records with Mixed Race from the dataframe
+sentences = 
+  dplyr::filter(sentences, sentences$race != 
+                  "Asian")
+
+# Assign all records to a data frame where the race of the defendant is "American Indian" for future inspection
+american_indian = 
+  dplyr::filter(sentences, sentences$race == 
+                  "American Indian")
+
+# Remove records with Mixed Race from the dataframe
+sentences = 
+  dplyr::filter(sentences, sentences$race != 
+                  "American Indian")
 
 # Factor `race` and add levels and labels
 sentences$race =
   factor(as.character(sentences$race,
-                      levels = c(1:6),
-                      labels = c(
-                        'American Indian',
-                        'Asian',
-                        'Black',
-                        'Hispanic',
-                        'Mixed Race',
-                        'White'
-                      ),
-                      exclude = NULL))
-
-sentences =
-  filter(sentences, 
-         race == "Black" |
-        race == "White" |
-          race == "Hispanic")
-
-sentences$race =
-  factor(as.character(sentences$race,
-                      levels = c(1:6),
+                      levels = c(1:3),
                       labels = c(
                         'Black',
                         'Hispanic',
                         'White'
                       ),
                       exclude = NULL))
-
-levels(sentences$race)
 ```
+
+The next variable to be inspected and transformed is `gender`. Tabulations of the number of observations for each category are printed out to the console.
+
+```
+R> table(sentences$gender)
+
+                                               Female                       Male        Male name, no gender given 
+                       777                      26656                     193729                                 3 
+                   Unknown             Unknown Gender 
+                         4                          1 
+```
+
+Just as with `race`, inconsistencies among the values of `gender` abound. Those records where the `gender` value is blank are merged into the category of "Unknown." Additionally, the categor of "Unknown Gender" is merged into category "Unknown." Interestingly, three records exist with a value of "Male name, no gender given," representing an officer or arresting agency's attempt at some point to salvage data. The three records with `gender` value "Male name, no gender given" are also merged into the category of "Unknown."
+
+```
+# Transform `gender` into a character variable type
+sentences$gender = 
+  as.character(sentences$gender)
+# Convert all blank `gender` entires into value of `Unknown`
+sentences$gender[sentences$gender %in%
+                 ""] = "Unknown"
+# Convert all "Unknown Gender" `gender` entires into value of `Unknown`
+sentences$gender[sentences$gender %in%
+                   "Unknown Gender"] = "Unknown"
+# Convert all "Male name, no gender given"  `gender` entires into value of `Unknown`
+sentences$gender[sentences$gender %in%
+                   "Male name, no gender given"] = "Unknown"
+```
+
+Just as in with `race`, those records with an "Unknown" `gender` value, which represent 0.02% of the observations remaining in the data set, are removed.
+
+```
+# Determine what percentage of all observations is "Unknown"
+paste0(round(nrow(sentences[sentences$gender == 'Unknown',]) / nrow(sentences) * 100, 2), "%")
+
+unknown_gender = 
+  dplyr::filter(sentences, sentences$gender == 
+                  "Unknown")
+
+# Remove records with "Unknown" gender from the dataframe
+sentences = 
+  dplyr::filter(sentences, sentences$race != 
+                  "Unknown")
+```
+Next, the variable `age.at.incident` is addressed. The variable refers to the age of the defendent at the time of the incident (as opposed to the time of arrest or sentencing) expressed as a whole number and in years. Upon inspection of the values represented in `age.at.incident`, it is discovered that the data ranges from "17" up through "130." 
+
+```
+## Variable: `age.at.incident`
+
+# Printout levels and attempt to detect anomalies or data entry mistakes
+levels(as.factor(sentences$age.at.incident))
+
+R> levels(as.factor(sentences$age.at.incident))
+ [1] "17"  "18"  "19"  "20"  "21"  "22"  "23"  "24"  "25"  "26"  "27"  "28"  "29"  "30"  "31"  "32"  "33"  "34"  "35"  "36"  "37" 
+[22] "38"  "39"  "40"  "41"  "42"  "43"  "44"  "45"  "46"  "47"  "48"  "49"  "50"  "51"  "52"  "53"  "54"  "55"  "56"  "57"  "58" 
+[43] "59"  "60"  "61"  "62"  "63"  "64"  "65"  "66"  "67"  "68"  "69"  "70"  "71"  "72"  "73"  "74"  "75"  "76"  "77"  "78"  "79" 
+[64] "80"  "81"  "82"  "84"  "85"  "86"  "114" "117" "124" "127" "130"
+```
+
+Though there are individuals with verifiable ages of up to 122 years old at time of death, all records with reported ages greater than 100 are removed from the dataset out of concern for data input mistakes more so than concern for the outlier effect. The percentage of observations with a value greater than 100 for `age.at.incident` is 1.26% of the total remaining observations.
+
+```
+# Remove obviously wrong ages: ages > 100
+sentences$age.at.incident = 
+  as.numeric(sentences$age.at.incident)
+# Determine what percentage of all observations is greater than 100 for `age.at.incident`
+paste0(round(nrow(sentences[sentences$age.at.incident > 100,]) / nrow(sentences) * 100, 2), "%")
+# Assign all records with an age greater than 100 at time of incident to a data frame object
+age_errors = 
+  dplyr::filter(sentences, age.at.incident > 100)
+# Remove all ages where defendent's age is greater than 100 at time of incident
+sentences = 
+  dplyr::filter(sentences, age.at.incident <= 100)
+```
+
+The next variable of interest is `commitment.unit`, and is one of especial importance and interest to the analysis as `commitment.unit` and `commitment.term` can be used to derive the total sentence length of convicted defendents.
+
+Upon inspection of the category values for `commitment.unit`, some unexpected and unusual units are present in the data. In addition to the expected temporal values such as "Days", "Months", and "Year(s)", non-temporal values are included such as those that seemingly reference monetary fines such as "Dollars" and "Pounds." Though "Pounds" could refer to the Great British Pound, there is doubt to the exact meaning of "Pounds" as included among the values for `commitment.unit` since the data set represents the criminal sentencing of an American county (Cook County, Illinois) and since other values present represent measurements of mass e.g. "Ounces" and "Kilos." Ambiguously, it is impossible to determine whether "Pounds" is a unit of currency or a unit of mass. Additionally, blank values are included as well as an undefined value of "Terms." Finally, a unit is included to represent life sentences "Natural Life." 
+
+Later in the analysis, a new feature, `sentence.length`, is derived from combining `commitment.unit` with `commitment.term`. In order to achieve the derivation of the new variable, non-temporal and determinant values such as "Natural Life" and "Dollars" are removed in order to produce `sentence.length`
+
+```
+## Variable: `commitment.unit` 
+
+# Inspect the categories included in `commitment.unit`
+levels(as.factor(sentences$commitment.unit))
+
+R> levels(as.factor(sentences$commitment.unit))
+ [1] ""             "Days"         "Dollars"      "Hours"        "Kilos"        "Months"       "Natural Life" "Ounces"      
+ [9] "Pounds"       "Term"         "Weeks"        "Year(s)"   
+```
+
+
+# View a tabulation of `gender` frequencies
+table(sentences$commitment.unit)
+
+```
+# Determine what percentage of all observations is blank
+paste0(round(nrow(sentences[sentences$commitment.unit == "",]) / nrow(sentences) * 100, 2), "%")
+# Determine what percentage of all observations is Dollars
+paste0(round(nrow(sentences[sentences$commitment.unit == "Dollars",]) / nrow(sentences) * 100, 2), "%")
+# Determine what percentage of all observations is Hours
+paste0(round(nrow(sentences[sentences$commitment.unit == "Hours",]) / nrow(sentences) * 100, 2), "%")
+# Determine what percentage of all observations is Kilos
+paste0(round(nrow(sentences[sentences$commitment.unit == "Kilos",]) / nrow(sentences) * 100, 2), "%")
+# Determine what percentage of all observations is blank
+paste0(round(nrow(sentences[sentences$commitment.unit == "Natural Life",]) / nrow(sentences) * 100, 2), "%")
+# Determine what percentage of all observations is Ounces
+paste0(round(nrow(sentences[sentences$commitment.unit == "Ounces",]) / nrow(sentences) * 100, 2), "%")
+# Determine what percentage of all observations is Pounds
+paste0(round(nrow(sentences[sentences$commitment.unit == "Pounds",]) / nrow(sentences) * 100, 2), "%")
+# Determine what percentage of all observations is Term
+paste0(round(nrow(sentences[sentences$commitment.unit == "Term",]) / nrow(sentences) * 100, 2), "%")
+```
+
+Since the `commitment.unit` categories of "Unknown" (), "" (0.6%), "" (%), and "" (), each representing approximately only one-half of a percent and collectively less than two percent of the total data (% collectively), they are removed from the data set as outliers and in order to simplify the analysis when examining the feature `race`. It should be further noted that the category of "Unknown" should be removed from the data since it is not a true `commitment.unit` designation and is useless for analytical purposes. Without the records of `commitment.unit` value "Unknown," the total data to be removed based upon ___ represents only 1.14% of the original data set's total number of observations. (address mistakes)
+
+Before removing each racial category from the data set, the data for each category is assigned to a data frame object named after `commitment.unit` value.
+
+```
+# Transform `commitment.unit` to characters
+sentences$commitment.unit =
+  as.character(sentences$commitment.unit)
+
+# Assign "Dollars" to a data frame object for further inspection
+dollars_unit = 
+  dplyr::filter(sentences, commitment.unit == "Dollars")
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Dollars")
+nrow(sentences)
+
+# Assign "Pounds" to a data frame object for further inspection
+pound_unit = 
+  dplyr::filter(sentences, commitment.unit == "Pounds")
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Pounds")
+nrow(sentences)
+
+# Assign "Term" to a data frame object for further inspection
+term_unit = 
+  dplyr::filter(sentences, commitment.unit == "Term")
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Term")
+nrow(sentences)
+
+# Assign blank values to a data frame object for further inspection
+blank_unit = 
+  dplyr::filter(sentences, commitment.unit == "")
+sentences =
+  dplyr::filter(sentences, commitment.unit != "")
+nrow(sentences)
+
+# Assign "Kilos" to a data frame object for further inspection
+kilos_unit = 
+  dplyr::filter(sentences, commitment.unit == "Kilos")
+# Remove "Kilos"
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Kilos")
+nrow(sentences)
+
+# Assign "Ounces" to a data frame object for further inspection
+ounces_unit = 
+  dplyr::filter(sentences, commitment.unit == "Ounces")
+# Remove "Ounces"
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Ounces")
+```
+
+
+# Subset Natural Life (Do I want to treat a certain number as natural life sentences or even natural life sentences as a number)
+natural_life_unit = 
+  dplyr::filter(sentences, commitment.unit == "Natural Life")
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Natural Life")
+# 195,934 Rows
+nrow(sentences)
+```
+
+
 
 
 

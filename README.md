@@ -29,10 +29,6 @@ apiEndpoint =
 After assigning the endpoint URI to the object, use the `read.socrata()` function to query the data from SODA API, assigning the returned data to a data frame object named `sentences`:
 
 ```
-# Assign the API endpoint URI to `apiEndpoint`
-apiEndpoint = 
-  "https://datacatalog.cookcountyil.gov/resource/tg8v-tm6u.csv"
- 
 # Query the SODA API and assign the returned data to data frame object `sentences`
 sentences = 
   read.socrata(apiEndpoint)

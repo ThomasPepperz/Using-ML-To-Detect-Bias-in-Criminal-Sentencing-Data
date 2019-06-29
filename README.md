@@ -82,7 +82,6 @@ R> head(sentences)
 6             true                 Homicide           14
 ```
 ### Description of the Variables
-
 Columns in the dataset include the following:
 
 `CASE_ID`: Internal unique identifier for each case (Number)
@@ -164,3 +163,203 @@ Columns in the dataset include the following:
 `CHARGE_COUNT`: The charge count of the charged offense (Number)
 
 It should be noted that the variable types listed above are not necessarily the state of the variables throughout the analysis to be performed in R e.g. (dates are transformed from "m-d-y" to "YYYY-MM-DD" ("2019-01-01") in the R script and excludes references to hours and seconds since that time granularity was not included in the data set. "Checkboxes" are treated as Boolean variables that have values of "TRUE" or "FALSE."
+
+## Cleaning the Data
+
+### Setup
+Begin by first loading (or downloading if not already installed) the required packages for the entire analysis:
+
+```
+# Stop R from printing using scientific notation
+options(scipen = 999)
+
+# Load packages
+library(RSocrata)
+library(dplyr)
+library(janitor)
+library(lubridate)
+library(ggplot2)
+library(gmodels)
+library(forcats)
+library(randomForest)
+library(party)
+library(rpart.plot)
+library(reprtree)
+```
+
+### Transforming the Variables
+Unfortunately, there are no enforced naming conventions for files, objects, functions, and variables for the R language. Google has published ["Google's R Style Guide"](https://google.github.io/styleguide/Rguide.xml), which encourages user's to use lower-cased names separated by periods for variable names and is the convention for variable-naming that is followed in the following analysis. Statistician Hadley Wickham, the Chief Scientist at RStudio as well as author and maintainer of popular R packages that include `tidyverse`, `tidyr`, `ggplot`, and `dplyr` amongst many others, prefers to use the underscore to separate elements within noun objects (data frame and variable names). See Wickham's brief [style guide](http://adv-r.had.co.nz/Style.html) for more details. Furthermore, an interesting study regarding R naming conventions is Rasmus Bååth's article ["The State of Naming Conventions in R"](https://journal.r-project.org/archive/2012-2/RJournal_2012-2_Baaaath.pdf) published in the *The R Journal*, Vol. 4/2, December 2012.
+
+The following code uses the function `clean_names()` from the `janitor` package to format the variable names according to Google's R code style:
+
+```
+# Cooerce column names
+sentences = 
+  sentences %>% 
+  clean_names()
+# Replace underscore with a period
+colnames(sentences) = 
+  gsub("_", ".", colnames(sentences))
+# Check column name formatting is consistent
+colnames(sentences)
+
+R> colnames(sentences)
+[1] "case.id"                   "case.participant.id"       "charge.id"                 "charge.version.id"        
+[5] "primary.charge"            "offense.title"             "chapter"                   "act"
+...
+```
+
+The following section focuses on the transformation of the variable data types for each feature as well as the formatting of the associated values. The first variable to be transformed is `race`.
+
+Inspection of the data revealed many inconsistencies in how values for `race` has been inputted, which most likely is attributable either to inconsistent data input formatting policies amongst arresting agencies or to individual officers with the responsibility of inputting data.
+
+```
+R> levels(as.factor(sentences$race))
+ [1] ""                                 "American Indian"                  "Asian"                           
+ [4] "ASIAN"                            "Biracial"                         "Black"                           
+ [7] "HISPANIC"                         "Unknown"                          "White"                           
+[10] "White [Hispanic or Latino]"       "White/Black [Hispanic or Latino]"
+  
+```  
+
+Decisions on how to handle the inconsistently named values for `race` require great care and consideration since, afterall, the topic of the analysis is detecting bias (racial, gender, and age-related bias) in criminal sentencing data. It is an easy call to merge records with values "ASIAN" into "Asian"; however, it is much more difficult to justify decisions on how to treat categories such "White [Hispanic or Latino]," "White/Black [Hispanic or Latino]," and "Biracial." Evidence of the confused treatment and understanding of race and ethnicity by the American judicial system is illustrated by the choice of classification values for `race` in the Cook County, Illinois criminal sentencing data set. 
+
+What is the difference between those with a race of "White" versus "White [Hispanic or Latino"? Should "White [Hispnaic or Latino] records be considered "White," "Hispanic," or as its own category? If treated as a separate category from "White" or "Hispanic," then what is the justification for treating it as a separate class?
+
+What is the distinction between "White/Black [Hispanic or Latino] and other related categories? Should the category simply be merged into "Hispanic"? Given the inclusion of "White/Black" in the category, it is unacceptable to merge the category into either "White,", "Black," and "White [Hispanic or Latino]." If not included in "Hispanic," would it be acceptable to treat "White/Black [Hispanic or Latino]" as "Biracial" or is "Biracial" inclusive of only a mixed race consisting of a mixture between "White" and "Black" races?
+
+Decisions regarding the naming of racial groups for census and statistical purposes reveals the racial tension and conflict within the American judicial system and broader culture. Moreover, the racial categories included in the Cook County, Illinois criminal sentencing data set demonstrate a cognitive dissonance that has resulted as a consequence of the tension between America's long-standing use of its historical racial concepts and the more recent, sociological-informed developements in American language and attitude toward race, gender, and class. Historically, language and legal, racial classifications blended reduced the notion of race from any distinguishing and ethnicity-identifying phenotypes to skin color alone. Moreover, America's historical use of race legally and linguistically inconcistently and arbitrarily confused race, ethnicity, and nationality. Moreover, late Twentieth Century developments in American sociology and cultural studies introduced a more sophisticated and precise language that recognized differences among race, ethnicity, culture, and nationality. Most academics in the Twenty-first Century would recognize that the terms "Hispanic" and "Latino" are ethnoyms and are not synonymous with each other. Classifications used in the Cook County data set such as "White [Hispanic or Latino]" and "White/Black [Hispanic or Latino]" are terms that combine racial and ethnic designations. 
+
+However, the U.S. Census Bureau is required by regulation to adhere to the 1997 Office of Management and Budget (OMB) [standards](https://www.census.gov/topics/population/race/about.html) on race and ethnicity: 
+
+"The Census Bureau collects racial data in accordance with guidelines provided by the U.S. Office of Management and Budget (OMB), and these data are based on self-identification. The racial categories included in the census questionnaire generally reflect a social definition of race recognized in this country and not an attempt to define race biologically, anthropologically, or genetically. In addition, it is recognized that the categories of the race item include racial and national origin or sociocultural groups." 
+
+Additionally, the U.S. Census Bureau recognizes [five racial classications](https://www.census.gov/mso/www/training/pdf/race-ethnicity-onepager.pdf): "An individual can report as White, Black or African American, Asian, American Indian and Alaska Native, Native Hawaiian and Other Pacific Islander, or some other race."
+
+The U.S. Census Bureau definites "ethnicity" in the following [statement](https://www.census.gov/mso/www/training/pdf/race-ethnicity-onepager.pdf): "Ethnicity determines whether a person is of Hispanic origin or not. For this reason, ethnicity is broken out in two categories, Hispanic or Latino and Not Hispanic or Latino. Hispanics may report as any race."
+
+Using the language and taxonomy outlined by the U.S. Census Bureau, it can be concluded that the Cook County criminal sentencing data combines ethnic and racial categories together within the variable `race`. For purposes of the present analysis, the category "White [Hispanic or Latino]" is merged into "Hispanic", and the categories "White/Black Hispanic or Latino" and "Biracial" are merged as "Mixed Race." 
+
+To begin, `race` is converted into a character in order to perform basic text cleaning such as removing brackets.
+
+```
+## Variable: `race`
+
+# Transform `race` into a character variable type
+sentences$race =
+  as.character(sentences$race)
+# Remove brackets from `race` categories
+sentences$race = 
+  gsub("[", "", sentences$race, fixed = T)
+sentences$race = 
+  gsub("]", "", sentences$race, fixed = T
+```
+
+It is an easy call to merge records with `race` value "ASIAN" with records of value "Asian." 
+
+```
+# Merge all records with `race`` value of "ASIAN" into `race` value "Asian"
+sentences$race[sentences$race %in%
+                 "ASIAN"] = "Asian"
+```
+
+Those records with a blank value for `race` are merged with records of `race` value "Unknown."
+
+```
+# Merge all records with `race`` value of "" (blank) into `race` value "Unknown"
+sentences$race[sentences$race %in%
+                 ""] = "Unknown"
+```
+
+As stated previously, all records with a  `race` value of "White [Hispanic or Latino]" are merged with "Hispanic." Additionally, like how the `race` value "ASIAN" is merged into the similar "Asian" category, values of "HISPANIC" are merged into the category of "Hispanic."
+
+```
+# Merge all records with `race` value of "White Hispanic or Latino" into `race value "Hispanic"
+sentences$race[sentences$race %in%
+                 "White Hispanic or Latino"] = "Hispanic"
+# Merge all records with `race` value of "HISPANIC" into `race` value "Hispanic"
+sentences$race[sentences$race %in%
+                 "HISPANIC"] = "Hispanic"
+```
+
+Though it was a difficult, and somewhat arbitrary decision without any guidance, the `race` value of "White/Black Hispanic or Latino" is merged into the newly-created category of "Mixed Race" due to the inclusion of "White/Black" in the Cook County-named `race` category. Furthermore, "Biracial" is also merged into the "Mixed Race" category. It should be noted that no information regarding the definition of "Biracial" is included with the Cook County criminal sentencing data set, and it is unclear whether or not "Biracial" includes other mixed racial groups other than "white" and "black" or "African American." It could be argued that if the `race` value of "Biracial" indeed were to be confirmed to be inclusive of only those defendents with a mixed race of "white" and "black," then it would be appropriate to merge "Biracial" into the `race` category of "Black" since many believe that the contemporary American judicial system unjustly views biracial individuals as neither "biracial" nor "white" but as "black," a possible social consequence of perception inherited from the historical American notion embodied in what was known as the "One-Drop Rule," which was a legal principle used for demographic and statistical purposes to define any American individual with any identifiable `black` racial heritage as `black`, thereby permitting the discriminatory and racist laws written to oppress black Americans to those of mixed racial ancestry as well. However, because it is unclear from the data whether "Biracial" refers to only those of white-black mixed race, "Biracial" has been merged into "Mixed Race" for purposes of the present analysis.
+
+```
+# Merge all records with `race` value of "White/Black Hispanic or Latino" into `race` value "Mixed Race"
+sentences$race[sentences$race %in%
+                 "White/Black Hispanic or Latino"] = "Mixed Race"
+# Merge all records with `race` value of "Biracial" into `race` value "Mixed Race"
+sentences$race[sentences$race %in%
+                 "Biracial"] = "Mixed Race"
+```
+
+Next, `race` is transformed into a factored variable, and tabulations of the number of observations for each category are printed out to the console.
+
+```
+# Transform `race` into a factor 
+sentences$race =
+  as.factor(sentences$race)
+# Print the levels of factor `race`
+levels(as.factor(sentences$race))
+# View a tabulation of `race` frequencies
+table(sentences$race)
+
+R> # View a tabulation of `race` frequencies
+R> table(sentences$race)
+
+American Indian           Asian           Black        Hispanic      Mixed Race         Unknown           White 
+            120            1322          146637           38838            1091            1499           31663 
+```
+
+
+
+```
+# Remove all records where the race of the defendant is "Unknown"
+unknown_race = 
+  dplyr::filter(sentences, sentences$race == 
+                  "Unknown")
+# 1,398 Records with Unknown Race
+nrow(unknown_race)
+# Remove records with Unknown Race from the dataframe
+sentences = 
+  dplyr::filter(sentences, sentences$race != 
+                  "Unknown")
+# Updated row number: 202,435 records
+nrow(sentences)
+
+# Factor `race` and add levels and labels
+sentences$race =
+  factor(as.character(sentences$race,
+                      levels = c(1:6),
+                      labels = c(
+                        'American Indian',
+                        'Asian',
+                        'Black',
+                        'Hispanic',
+                        'Mixed Race',
+                        'White'
+                      ),
+                      exclude = NULL))
+
+sentences =
+  filter(sentences, 
+         race == "Black" |
+        race == "White" |
+          race == "Hispanic")
+
+sentences$race =
+  factor(as.character(sentences$race,
+                      levels = c(1:6),
+                      labels = c(
+                        'Black',
+                        'Hispanic',
+                        'White'
+                      ),
+                      exclude = NULL))
+
+levels(sentences$race)
+```
+
+
+
+Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com

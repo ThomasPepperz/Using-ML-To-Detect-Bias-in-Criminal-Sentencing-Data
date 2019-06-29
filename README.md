@@ -549,13 +549,13 @@ sentences =
 ```
 
 
+
+```
 # Subset Natural Life (Do I want to treat a certain number as natural life sentences or even natural life sentences as a number)
 natural_life_unit = 
   dplyr::filter(sentences, commitment.unit == "Natural Life")
 sentences = 
   dplyr::filter(sentences, commitment.unit != "Natural Life")
-# 195,934 Rows
-nrow(sentences)
 ```
 
 

@@ -961,7 +961,88 @@ cond_release_no_prison =
                 commitment.type != "Cook County Department of Corrections")
 ```
 
-![alt text3](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-race-conditional-release-type.png)
+No Prison yada yada
+
+```
+#### No Prison Sentence Types ####
+
+# 2nd Chance Probation
+probation_2nd = 
+  dplyr::filter(sentences, sentence.type == "2nd Chance Probation")
+
+# Supervision
+supervision = 
+  dplyr::filter(sentences, sentence.type == "Supervision")
+
+# Conversion 
+conversion = 
+  dplyr::filter(sentences, sentence.type == "Conversion")
+
+# Cook County Boot Camp
+bootcamp = 
+  dplyr::filter(sentences, sentence.type == "Cook County Boot Camp")
+
+# Inpatient Mental Health Services
+mental_inpatient  = 
+  dplyr::filter(sentences, sentence.type == "Inpatient Mental Health Services")
+
+# Probation
+probation = 
+  dplyr::filter(sentences, sentence.type == "Probation")
+
+# Probation Terminated Satisfactorily
+probation_sat = 
+  dplyr::filter(sentences, sentence.type == "Probation Terminated Satisfactorily")
+
+# Probation Terminated Unsatisfactorily
+probation_unsat = 
+  dplyr::filter(sentences, sentence.type == "Probation Terminated Unsatisfactorily")
+
+# Probation Terminated Instanter
+probation_instanter = 
+  dplyr::filter(sentences, sentence.type == "Probation Terminated Instanter")
+
+
+# Combine all charges not resulting in imprisonment to data frame 'no_prison'
+no_prison = 
+  rbind(probation_2nd,
+        cond_discharge_no_prison,
+        cond_release_no_prison,
+        conversion,
+        bootcamp,
+        mental_inpatient,
+        probation,
+        probation_sat,
+        probation_unsat,
+        probation_instanter
+)
+```
+
+Include a visualization of no_prison by race
+
+Prison yada yad
+
+```
+#### Prison Sentence Types ####
+
+# Jail
+jail = 
+  dplyr::filter(sentences, sentence.type == "Jail")
+
+# Prison
+prison = 
+  dplyr::filter(sentences, sentence.type == "Prison")
+
+# Combine all charges resulting in imprisonment to data frame 'prison'
+prison =
+  rbind(cond_discharge_prison,
+        cond_release_prison,
+        jail,
+        prison)
+```
+
+Include a visualization of prison by race
+
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com
 

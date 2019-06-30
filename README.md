@@ -917,4 +917,4 @@ cond_release_no_prison =
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com
 
 
-![alt text](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/raw/master/src/common/images/count-charges-commitment.type.png "Logo Title Text 1")
+![alt text](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-charges-commitment-type.png)

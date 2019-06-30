@@ -164,9 +164,9 @@ Columns in the dataset include the following:
 
 It should be noted that the variable types listed above are not necessarily the state of the variables throughout the analysis to be performed in R e.g. (dates are transformed from "m-d-y" to "YYYY-MM-DD" ("2019-01-01") in the R script and excludes references to hours and seconds since that time granularity was not included in the data set. "Checkboxes" are treated as Boolean variables that have values of "TRUE" or "FALSE."
 
-## Cleaning the Data
+# Cleaning the Data
 
-### Setup
+## Setup
 Begin by first loading (or downloading if not already installed) the required packages for the entire analysis:
 
 ```
@@ -187,7 +187,7 @@ library(rpart.plot)
 library(reprtree)
 ```
 
-### Transforming the Variables
+## Variables
 Unfortunately, there are no enforced naming conventions for files, objects, functions, and variables for the R language. Google has published ["Google's R Style Guide"](https://google.github.io/styleguide/Rguide.xml), which encourages user's to use lower-cased names separated by periods for variable names and is the convention for variable-naming that is followed in the following analysis. Statistician Hadley Wickham, the Chief Scientist at RStudio as well as author and maintainer of popular R packages that include `tidyverse`, `tidyr`, `ggplot`, and `dplyr` amongst many others, prefers to use the underscore to separate elements within noun objects (data frame and variable names). See Wickham's brief [style guide](http://adv-r.had.co.nz/Style.html) for more details. Furthermore, an interesting study regarding R naming conventions is Rasmus Bååth's article ["The State of Naming Conventions in R"](https://journal.r-project.org/archive/2012-2/RJournal_2012-2_Baaaath.pdf) published in the *The R Journal*, Vol. 4/2, December 2012.
 
 The following code uses the function `clean_names()` from the `janitor` package to format the variable names according to Google's R code style:
@@ -211,7 +211,8 @@ R> colnames(sentences)
 
 The following section focuses on the transformation of the variable data types for each feature as well as the formatting of the associated values. The first variable to be transformed is `race`.
 
-Inspection of the data revealed many inconsistencies in how values for `race` has been inputted, which most likely is attributable either to inconsistent data input formatting policies amongst arresting agencies or to individual officers with the responsibility of inputting data.
+### Variable `race`
+Inspection of the data reveals many inconsistencies in how values for `race` has been inputted, which most likely is attributable either to inconsistent data input formatting policies amongst arresting agencies or to individual officers with the responsibility of inputting data.
 
 ```
 R> levels(as.factor(sentences$race))
@@ -381,6 +382,7 @@ sentences$race =
                       exclude = NULL))
 ```
 
+### Variable `gender`
 The next variable to be inspected and transformed is `gender`. Tabulations of the number of observations for each category are printed out to the console.
 
 ```
@@ -424,6 +426,8 @@ sentences =
   dplyr::filter(sentences, sentences$race != 
                   "Unknown")
 ```
+
+### Variable `age.at.incident`
 Next, the variable `age.at.incident` is addressed. The variable refers to the age of the defendent at the time of the incident (as opposed to the time of arrest or sentencing) expressed as a whole number and in years. Upon inspection of the values represented in `age.at.incident`, it is discovered that the data ranges from "17" up through "130." 
 
 ```
@@ -455,7 +459,8 @@ sentences =
   dplyr::filter(sentences, age.at.incident <= 100)
 ```
 
-The next variable of interest is `commitment.unit`, and is one of especial importance and interest to the analysis as `commitment.unit` and `commitment.term` can be used to derive the total sentence length of convicted defendents.
+### Variables `commitment.unit` & `commitment.term`
+The next variables of interest are `commitment.unit` and `commitment.term`, and is one of special importance and interest to the analysis as `commitment.unit` and `commitment.term` can be used to derive the total sentence length of convicted defendents.
 
 Upon inspection of the category values for `commitment.unit`, some unexpected and unusual units are present in the data. In addition to the expected temporal values such as "Days", "Months", and "Year(s)", non-temporal values are included such as those that seemingly reference monetary fines such as "Dollars" and "Pounds." Though "Pounds" could refer to the Great British Pound, there is doubt to the exact meaning of "Pounds" as included among the values for `commitment.unit` since the data set represents the criminal sentencing of an American county (Cook County, Illinois) and since other values present represent measurements of mass e.g. "Ounces" and "Kilos." Ambiguously, it is impossible to determine whether "Pounds" is a unit of currency or a unit of mass. Additionally, blank values are included as well as an undefined value of "Terms." Finally, a unit is included to represent life sentences "Natural Life." 
 
@@ -713,6 +718,7 @@ years$commitment.term =
   as.numeric(years$commitment.term)
 ```
 
+### Variable `sentence.length`
 As indicated in the Cook County criminal sentencing data documentation, a sentence length can be determined for each charge by considering the `commitment.unit` (hours, days, weeks, et cetera) and the `commitment.term`. For example, using the documentation instructions, one could take a charge with a commitment unit of "Weeks" and a commitment term of "4" and determine that the criminal defendent was sentenced to "4 Weeks" of whatever `commitment.type` (Prison, probation, rehabilitation, et cetera).  More over, if one wanted to determine what the sentence length is in terms of days, a coefficient of "7" days could be used in the case of weeks and multiplied with the commitment term to arrive at 28 days using the previous example. 
 
 For the present analysis, values for each charge are derived by creating a new variable `sentence.length` for each `commitment.unit` segment and standardizing into a common unit of "Days" by computing a `commitment.unit` coefficient for each segment (hours, days, weeks, months, and years) and applying the coefficient with multiplication or division where appropriate to the `commitment.term`. 
@@ -765,6 +771,7 @@ sentences =
 sentences$commitment.unit = "Days"
 ```
 
+### Variable `primary.charge`
 Because there may exist significant differences in the judicial treatment of criminal charges that are classified as the primary charge, the data frame 'sentences' is further segmented according to whether or not it is a primary charge. Those observations where the value of `primary.charge` is "false" are assigned to data frame `primary_charge_false` and those with the value of 'true' are assigned to `primary_charge_true`. However, prior to segmentation, the values of each row are transformed such that those with with the value "true" are converted to "1" and those with the value "false" are converted to "0." `primary.charge` is first factored before the data frame is segmented.
 
 ```
@@ -792,24 +799,126 @@ primary_charge_false =
 nrow(sentences) == nrow(primary_charge_false) + nrow(primary_charge_true)
 ```
 
-The next variable considered is `setence.type`, which describes the type of punishment to which a criminal defendent is sentenced for a particular charge. Fourteen different sentence types are present in the Cook County criminal sentencing data set, which are listed in the following R code output:
+### Variables `sentence.type` & `commitment.type`
+The next variables considered are `sentence.type` and `commitment.type`, which both describes the type of punishment to which a criminal defendent is sentenced for a particular charge. Whereas the documentation describes `sentence.type` as a "broad type of sentence issued," it characterizes `commitment.type` as "a more specific type of sentence issued. There are fourteen different sentence types and twenty five commitment types present in the Cook County criminal sentencing data set, which are listed in the following R code output:
 
 ```
 #### Sentence Type Segmentation ####
 
+# Print out levels of `sentence.type`
 R> levels(sentences$sentence.type)
  [1] "2nd Chance Probation"                  "Conditional Discharge"                 "Conditional Release"                  
  [4] "Conversion"                            "Cook County Boot Camp"                 "Death"                                
  [7] "Inpatient Mental Health Services"      "Jail"                                  "Prison"                               
 [10] "Probation"                             "Probation Terminated Instanter"        "Probation Terminated Satisfactorily"  
 [13] "Probation Terminated Unsatisfactorily" "Supervision"  
+
+R> # Print out levels of `commitment.type`
+R> levels(sentences$commitment.type)
+[1] ""                                         "2nd Chance Probation"                     "710/410 Probation"                       
+ [4] "Conditional Discharge"                    "Conditional Release"                      "Cook County Boot Camp"                   
+ [7] "Cook County Department of Corrections"    "Cook County Impact Incarceration Program" "Court Supervision"                       
+[10] "Death"                                    "Domestic Violence Probation"              "Drug Court Probation"                    
+[13] "Drug School"                              "Gang Probation"                           "Home Confinement"                        
+[16] "Illinois Department of Corrections"       "Inpatient Mental Health Services"         "Intensive Drug Probation Services"       
+[19] "Intensive Probation Services"             "Juvenile IDOC"                            "Mental Health Probation"                 
+[22] "Natural Life"                             "Periodic Imprisonment"                    "Probation"                               
+[25] "Repeat Offender Probation"                "Sex Offender Probation"                   "Veteran's Court Probation" 
 ```
-
-Though the documentation does not define nor describe each of the possible sentence types, each sentence type can be classified according to whether or not the defendent was incarcerated as a result of the sentencing. 
-
 
 It is stated in the *Cook County State Attorney 2017 Data Report* (Foxx, M. Kimberly 2018) that "Sentencing is the judgment imposed by the court on people who have been convicted. Each count for which there is a conviction receives a separate sentence; depending on the circumstances those sentences may be served concurrently or consecutively." 
 
 > Prison: a sentence of one year or more of incarceration, served in the Illinois Department of Corrections. <br /> <br />Jail: a sentence of less than one year served in county jail; a sentence of felony probation may also include a requirement to serve time in Cook County Jail. <br /> <br />Boot Camp: a program of military activities, physical exercise, labor-intensive work, and substance abuse treatment; successful completion of boot camp may lead to a sentence reduced to time served and placement on supervision. <br /> <br />Probation: mandatory compliance with court-ordered conditions for a specific period of time, monitored by a probation officer. <br /> <br />Conditional discharge: mandatory compliance with court-ordered conditions for a specific period of time, usually without the supervision of a probation officer. <br /> <br />Supervision: compliance with court-ordered conditions while conviction is suspended. Successful completion results in release without a conviction. <br /> <br />Note: only misdemeanors can receive a supervision sentence; while this report does not include misdemeanor charges, a case may receive supervision if it was initially charged as a felony then reduced to a misdemeanor through a plea or a finding of guilty on a lesser offense.
+
+Though the documentation does not define nor describe each of the possible sentence types, each sentence type can be classified according to whether or not the defendent was incarcerated as a result of the sentencing. 
+
+#### Sentencing: Death
+
+The first sentence-commitment type examined and segmented is "Death." Interestingly, "Death" is both a value for `sentence.type` and `commitment.type`. There are 59 charges that resulted in a sentence type of "Death." 
+
+```
+# Death Penalty 1: Assign rows where `sentence.type` is "Death" to data frame
+death1 = 
+  dplyr::filter(sentences, sentence.type == "Death")
+# Print out the number of rows in data frame 'death1'
+nrow(death1)
+# Death Penalty 1: Remove rows where `sentence.type` is "Death" from main data frame
+sentences = 
+  dplyr::filter(sentences, sentence.type != "Death")
+ ```
+
+Confusingly, when examining the commitment type for those records with a sentence type of "Death," only a portion of those records have "Death" listed as the commitment type as well. 
+
+```
+R> # Print out levels of `commitment.type` for 'death1'
+R> levels(as.factor(as.character(death1$commitment.type)))
+[1] ""                                      "Cook County Department of Corrections" "Death"                                
+[4] "Illinois Department of Corrections"   
+```
+
+Too add to the confusion, there is one observation where the more specific sentencing variable of `commitment.type` is "Death" but the broader `sentence.type` is not "Death" but instead listed as "Conversion."
+
+```
+# Death Penalty 2: Assign rows where `commitment.type` is "Death" to data frame
+death2 =
+  dplyr::filter(sentences, commitment.type == "Death")
+# Print out the number of rows in data frame 'death2'
+nrow(death2)
+# Death Penalty 2: Remove rows where `commitment.type` is "Death" from main data frame
+sentences = 
+  dplyr::filter(sentences, commitment.type != "Death")
+R> # Print out levels of `commitment.type` for 'death1'
+R> levels(as.factor(as.character(death2$sentence.type)))
+[1] "Conversion"
+```
+
+Data frames `death1` and `death2` are then combined into one data frame, `death`. The number of observations that resulted in a sentencing of death represent 0.03% of the entire number of rows from the Cook County criminal sentencing data set. 
+
+```
+# Death: Combine data frames 'death1' and 'death2' into one data frame 'death'
+death = 
+  rbind(death1,
+        death2)
+# Determine what percentage of all observations resulted in a sentencing of "Death"
+paste0(round(nrow(death) / nrow(sentences) * 100, 2), "%")
+```
+
+It should be noted that Illinois Governor Pat Quinn signed legislation in 2011 that abolished the death penalty in the state and the last execution occured in 1999. Fifteen convicted prisoners were on "death row" at the time of the abolition of the dealth penalty in Illinois, and the death sentences of all fifteen convicted prisoners were commuted to life sentences by Governor Quinn.
+
+#### Sentencing: Conditional Discharge & Conditional Release
+
+Talk ABOUT CONDITIONAL DISCHARGE AND RELEASES
+
+```
+#### Conditional Sentences ####
+
+# Segment conditional discharge sentence types
+cond_discharge = 
+  dplyr::filter(sentences, sentence.type == "Conditional Discharge")
+# Segment conditional discharge sentence types resulting in imprisonment
+cond_discharge_prison = 
+  dplyr::filter(cond_discharge, 
+              cond_discharge$commitment.type == "Illinois Department of Corrections" |
+              cond_discharge$commitment.type == "Cook County Department of Corrections")
+# Segment conditional discharge sentence types not resulting in imprisonment
+cond_discharge_no_prison = 
+  dplyr::filter(cond_discharge, 
+                commitment.type != "Illinois Department of Corrections" |
+                commitment.type != "Cook County Department of Corrections")
+
+# Segment conditional release sentence types
+cond_release = 
+  dplyr::filter(sentences, sentence.type == "Conditional Release")
+# Segment conditional release sentence types resulting in imprisonment
+cond_release_prison = 
+  dplyr::filter(cond_release, 
+                commitment.type == "Illinois Department of Corrections" |
+                commitment.type == "Cook County Department of Corrections")
+# Segment conditional release sentence types not resulting in imprisonment
+cond_release_no_prison = 
+  dplyr::filter(cond_release, 
+                commitment.type != "Illinois Department of Corrections" |
+                commitment.type != "Cook County Department of Corrections")
+```
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com

@@ -811,11 +811,15 @@ Though the documentation does not define nor describe each of the possible sente
 It is stated in the *Cook County State Attorney 2017 Data Report* (Foxx, M. Kimberly 2018) that "Sentencing is the judgment imposed by the court on people who have been convicted. Each count for which there is a conviction receives a separate sentence; depending on the circumstances those sentences may be served concurrently or consecutively." 
 
 > Prison: a sentence of one year or more of incarceration, served in the Illinois Department of Corrections.
+
 > Jail: a sentence of less than one year served in county jail; a sentence of felony probation may also include a requirement to serve time in Cook County Jail.
-Boot Camp: a program of military activities, physical exercise, labor-intensive work, and substance abuse treatment; successful completion of boot camp may lead to a sentence reduced to time served and placement on supervision.
-Probation: mandatory compliance with court-ordered conditions for a specific period of time, monitored by a probation officer.
-Conditional discharge: mandatory compliance with court- ordered conditions for a specific period of time, usually without the supervision of a probation officer.
-Supervision: compliance with court-ordered conditions while conviction is suspended. Successful completion results in release without a conviction. Note: only misdemeanors can receive
-a supervision sentence; while this report does not include misdemeanor charges, a case may receive supervision if it was initially charged as a felony then reduced to a misdemeanor through a plea or a finding of guilty on a lesser offense.
+
+> Boot Camp: a program of military activities, physical exercise, labor-intensive work, and substance abuse treatment; successful completion of boot camp may lead to a sentence reduced to time served and placement on supervision.
+
+> Probation: mandatory compliance with court-ordered conditions for a specific period of time, monitored by a probation officer.
+
+> Conditional discharge: mandatory compliance with court- ordered conditions for a specific period of time, usually without the supervision of a probation officer.
+
+> Supervision: compliance with court-ordered conditions while conviction is suspended. Successful completion results in release without a conviction. Note: only misdemeanors can receive a supervision sentence; while this report does not include misdemeanor charges, a case may receive supervision if it was initially charged as a felony then reduced to a misdemeanor through a plea or a finding of guilty on a lesser offense.
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com

@@ -472,34 +472,40 @@ R> levels(as.factor(sentences$commitment.unit))
  [9] "Pounds"       "Term"         "Weeks"        "Year(s)"   
 ```
 
-
-# View a tabulation of `gender` frequencies
-table(sentences$commitment.unit)
+The following code chunk computes and prints out the percentage of the total number of remaining observations in the data set for each of the non-temporal `commitment.unit` values. Except for the "Term" commitment unit (1.04%), each of the other non-temporal commitment units represent approximately one-half or less of a percent of the total number of observations in the data set. Since each commitment unit type constitutes a relatively small percentage of the total data set and because each is a non-temporal commitment unit, they are removed from the main data frame `sentences` are are assigned to a data frame named after each unit for further inspection.
 
 ```
-# Determine what percentage of all observations is blank
-paste0(round(nrow(sentences[sentences$commitment.unit == "",]) / nrow(sentences) * 100, 2), "%")
-# Determine what percentage of all observations is Dollars
-paste0(round(nrow(sentences[sentences$commitment.unit == "Dollars",]) / nrow(sentences) * 100, 2), "%")
-# Determine what percentage of all observations is Hours
-paste0(round(nrow(sentences[sentences$commitment.unit == "Hours",]) / nrow(sentences) * 100, 2), "%")
-# Determine what percentage of all observations is Kilos
-paste0(round(nrow(sentences[sentences$commitment.unit == "Kilos",]) / nrow(sentences) * 100, 2), "%")
-# Determine what percentage of all observations is blank
-paste0(round(nrow(sentences[sentences$commitment.unit == "Natural Life",]) / nrow(sentences) * 100, 2), "%")
-# Determine what percentage of all observations is Ounces
-paste0(round(nrow(sentences[sentences$commitment.unit == "Ounces",]) / nrow(sentences) * 100, 2), "%")
-# Determine what percentage of all observations is Pounds
-paste0(round(nrow(sentences[sentences$commitment.unit == "Pounds",]) / nrow(sentences) * 100, 2), "%")
-# Determine what percentage of all observations is Term
-paste0(round(nrow(sentences[sentences$commitment.unit == "Term",]) / nrow(sentences) * 100, 2), "%")
+R> # Determine what percentage of all observations is blank
+R> paste0(round(nrow(sentences[sentences$commitment.unit == "",]) / nrow(sentences) * 100, 2), "%")
+[1] "0.63%"
+R> # Determine what percentage of all observations is Dollars
+R> paste0(round(nrow(sentences[sentences$commitment.unit == "Dollars",]) / nrow(sentences) * 100, 2), "%")
+[1] "0.03%"
+R> # Determine what percentage of all observations is Hours
+R> paste0(round(nrow(sentences[sentences$commitment.unit == "Hours",]) / nrow(sentences) * 100, 2), "%")
+[1] "0.01%"
+R> # Determine what percentage of all observations is Kilos
+R> paste0(round(nrow(sentences[sentences$commitment.unit == "Kilos",]) / nrow(sentences) * 100, 2), "%")
+[1] "0%"
+R> # Determine what percentage of all observations is blank
+R> paste0(round(nrow(sentences[sentences$commitment.unit == "Natural Life",]) / nrow(sentences) * 100, 2), "%")
+[1] "0.31%"
+R> # Determine what percentage of all observations is Ounces
+R> paste0(round(nrow(sentences[sentences$commitment.unit == "Ounces",]) / nrow(sentences) * 100, 2), "%")
+[1] "0%"
+R> # Determine what percentage of all observations is Pounds
+R> paste0(round(nrow(sentences[sentences$commitment.unit == "Pounds",]) / nrow(sentences) * 100, 2), "%")
+[1] "0%"
+R> # Determine what percentage of all observations is Term
+R> paste0(round(nrow(sentences[sentences$commitment.unit == "Term",]) / nrow(sentences) * 100, 2), "%")
+[1] "1.04%"
 ```
 
-Since the `commitment.unit` categories of "Unknown" (), "" (0.6%), "" (%), and "" (), each representing approximately only one-half of a percent and collectively less than two percent of the total data (% collectively), they are removed from the data set as outliers and in order to simplify the analysis when examining the feature `race`. It should be further noted that the category of "Unknown" should be removed from the data since it is not a true `commitment.unit` designation and is useless for analytical purposes. Without the records of `commitment.unit` value "Unknown," the total data to be removed based upon ___ represents only 1.14% of the original data set's total number of observations. (address mistakes)
-
-Before removing each racial category from the data set, the data for each category is assigned to a data frame object named after `commitment.unit` value.
+For each non-temporal `commitment.unit` value, the associated records are first assigned to a data frame named after the unit before being removed from the main data frame `sentences`.
 
 ```
+#### Non-temporal `commitment.unit` values ####
+
 # Transform `commitment.unit` to characters
 sentences$commitment.unit =
   as.character(sentences$commitment.unit)
@@ -507,56 +513,258 @@ sentences$commitment.unit =
 # Assign "Dollars" to a data frame object for further inspection
 dollars_unit = 
   dplyr::filter(sentences, commitment.unit == "Dollars")
+# Remove "Dollars" values from the main data frame
 sentences = 
   dplyr::filter(sentences, commitment.unit != "Dollars")
-nrow(sentences)
 
 # Assign "Pounds" to a data frame object for further inspection
 pound_unit = 
   dplyr::filter(sentences, commitment.unit == "Pounds")
+# Remove "Pounds" values from the main data frame
 sentences = 
   dplyr::filter(sentences, commitment.unit != "Pounds")
-nrow(sentences)
 
 # Assign "Term" to a data frame object for further inspection
 term_unit = 
   dplyr::filter(sentences, commitment.unit == "Term")
+# Remove "Term" values from the main data frame
 sentences = 
   dplyr::filter(sentences, commitment.unit != "Term")
-nrow(sentences)
 
 # Assign blank values to a data frame object for further inspection
-blank_unit = 
+blank_commitment_unit = 
   dplyr::filter(sentences, commitment.unit == "")
+# Remove blank values from the main data frame
 sentences =
   dplyr::filter(sentences, commitment.unit != "")
-nrow(sentences)
 
 # Assign "Kilos" to a data frame object for further inspection
 kilos_unit = 
   dplyr::filter(sentences, commitment.unit == "Kilos")
-# Remove "Kilos"
+# Remove "Kilos" from the main data frame
 sentences = 
   dplyr::filter(sentences, commitment.unit != "Kilos")
-nrow(sentences)
 
 # Assign "Ounces" to a data frame object for further inspection
 ounces_unit = 
   dplyr::filter(sentences, commitment.unit == "Ounces")
-# Remove "Ounces"
+# Remove "Ounces" from the main data frame
 sentences = 
   dplyr::filter(sentences, commitment.unit != "Ounces")
 ```
 
-
+The `commitment.unit` value of "Natural Life" is an interesting and unique commitment unit as it is a temporal unit but unlike hours, days, or weeks, "Natural Life" is an indeterminate value and cannot be quantified in a useful and standardized manner. Natural life sentences are discussed later in the analysis along with a discussion of determinate, temporal commitment terms that are long enough that the resulting sentence length is for all intents and purposes a natural life sentence.
 
 ```
-# Subset Natural Life (Do I want to treat a certain number as natural life sentences or even natural life sentences as a number)
-natural_life_unit = 
+# Assign "Natural Life" to a data frame object for further inspection
+natural_life = 
   dplyr::filter(sentences, commitment.unit == "Natural Life")
+# Remove "Ounces"
 sentences = 
   dplyr::filter(sentences, commitment.unit != "Natural Life")
 ```
+
+For each temporal commitment unit (hours, days, weeks, months, and years), the observations for the associated values are subsetted and assigned to a data frame named after the unit before being removed from the main data frame `sentences`. Then, the variable `commitment.term` for each data frame is inspected for errors by examining the levels produced from factoring the variable. In many of the data frames, the commitment term values include leading zeroes, which either indicate data input errors or merely represent the idiosyncratic data input formatting of an individual officer or arresting agency. Leading zeroes are removed and those non-zero values that remain are left included in the data set and treated as non-errors. However, those values that were represented as either "0" or "00" are removed from the data frame and treated as errors. Finally, each value in `commitment.term` is re-inspected for errors before the variable is transformed from a character to a numeric variable.
+
+```
+#### Temporal `commitment.unit` values ####`
+
+# Hours: Assign "Hours" to a data frame object for further inspection
+hours = 
+  dplyr::filter(sentences, commitment.unit == "Hours")
+# Remove "Hours" from the main data frame
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Hours")
+# Inspect `commitment.term` for segment 'hours'
+levels(as.factor(as.character(hours$commitment.term)))
+# Remove all leading zeros from `commitment.term` for 'days'
+hours$commitment.term = 
+  gsub("(^|[^0-9])0+", "\\1", hours$commitment.term, perl = TRUE)
+# Assign any errors to a data frame object for further inspection
+hours_errors = 
+  dplyr::filter(hours, commitment.term == "")
+# Remove any errors from the segmented `commitment.unit` data frame
+hours = 
+  dplyr::filter(hours, commitment.term != "")
+# Re-inspect `commitment.term` for segment 'hours'
+levels(as.factor(as.character(hours$commitment.term)))
+# Convert `commitment.term` for segment 'hours' into a numeric variable
+hours$commitment.term = 
+  as.numeric(as.character(hours$commitment.term))
+
+
+# Days: Assign "Days" to a data frame object for further inspection
+days = 
+  dplyr::filter(sentences, commitment.unit == "Days")
+# Remove "Days" from the main data frame
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Days")
+# Inspect `commitment.term` for segment 'days'
+levels(as.factor(as.character(days$commitment.term)))
+# Remove all leading zeros from `commitment.term` for 'days'
+days$commitment.term = 
+  gsub("(^|[^0-9])0+", "\\1", days$commitment.term, perl = TRUE)
+# Assign any errors to a data frame object for further inspection
+days_errors = 
+  dplyr::filter(days, commitment.term == "")
+# Remove any errors from the segmented `commitment.unit` data frame
+days = 
+  dplyr::filter(days, commitment.term != "")
+# Re-inspect `commitment.term` for segment 'days'
+levels(as.factor(as.character(days$commitment.term)))
+# Convert `commitment.term` for segment 'days' into a numeric variable
+days$commitment.term = 
+  as.numeric(as.character(days$commitment.term))
+
+
+# Weeks: Assign "Weeks" to a data frame object for further inspection
+weeks = 
+  dplyr::filter(sentences, commitment.unit == "Weeks")
+# Remove "Weeks" from the main data frame
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Weeks")
+# Inspect `commitment.term` for segment 'weeks'
+levels(as.factor(as.character(weeks$commitment.term)))
+# Remove all leading zeros from `commitment.term` for 'weeks'
+weeks$commitment.term = 
+  gsub("(^|[^0-9])0+", "\\1", weeks$commitment.term, perl = TRUE)
+# Assign any errors to a data frame object for further inspection
+weeks_errors = 
+  dplyr::filter(weeks, commitment.term == "")
+# Remove any errors from the segmented `commitment.unit` data frame
+weeks = 
+  dplyr::filter(weeks, commitment.term != "")
+# Re-inspect `commitment.term` for segment 'weeks'
+levels(as.factor(as.character(weeks$commitment.term)))
+# Convert `commitment.term` for segment 'weeks' into a numeric variable
+weeks$commitment.term = 
+  as.numeric(as.character(weeks$commitment.term))
+
+
+# Months: Assign "Months" to a data frame object for further inspection
+months = 
+  dplyr::filter(sentences, commitment.unit == "Months")
+# Remove "Months" from the main data frame
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Months")
+# Inspect `commitment.term` for segment 'months'
+levels(as.factor(as.character(months$commitment.term)))
+# Remove all leading zeros from `commitment.term` for 'months'
+months$commitment.term = 
+  gsub("(^|[^0-9])0+", "\\1", months$commitment.term, perl = TRUE)
+
+# For errors that included the `commitment.unit` along with the `commitment.term`, replace with only the number
+months$commitment.term[months$commitment.term %in% 
+                         "30 months"] = "30"
+months$commitment.term[months$commitment.term %in% 
+                         "24 wrap"] = "24"
+months$commitment.term[months$commitment.term %in% 
+                         "18 months"] = "18"
+# Assign any errors to a data frame object for further inspection
+months_errors = 
+  dplyr::filter(months, commitment.term == "")
+# Remove any errors from the segmented `commitment.unit` data frame
+months = 
+  dplyr::filter(months, commitment.term != "")
+# Re-inspect `commitment.term` for errors in segment 'months'
+levels(as.factor(as.character(months$commitment.term)))
+# Convert `commitment.term` for segment 'months' into a numeric variable
+months$commitment.term = 
+  as.numeric(as.character(months$commitment.term))
+
+
+# Years: Assign "Years" to a data frame object for further inspection
+years = 
+  dplyr::filter(sentences, commitment.unit == "Year(s)")
+# Remove "Years" from the main data frame
+sentences = 
+  dplyr::filter(sentences, commitment.unit != "Year(s)")
+# Years: Rename `commitment.unit` value "Year(s)" to "years"
+years$commitment.unit[years$commitment.unit %in% 
+                "Year(s)"] = "Years"
+# Inspect `commitment.term` for errors in segment 'years'
+levels(as.factor(as.character(years$commitment.term)))
+# Change to "02032012" to "0" for removal
+years$commitment.term[years$commitment.term %in%
+                        "02032012"] = "0"
+# Change to "two" to "2" for removal
+years$commitment.term[years$commitment.term %in%
+                        "two"] = "2"
+# Remove all leading zeros from `commitment.term` for 'years'
+years$commitment.term = 
+  gsub("(^|[^0-9])0+", "\\1", years$commitment.term, perl = TRUE)
+
+# Assign any errors to a data frame object for further inspection
+years_errors = 
+  dplyr::filter(years, 
+                commitment.term == "" |
+                commitment.term == "2`"
+                  )
+# Remove any errors from the segmented `commitment.unit` data frame
+years = 
+  dplyr::filter(years, 
+                commitment.term != "2`" |
+                commitment.term != ""
+                  )
+# Re-inspect `commitment.term` for errors in segment 'years'
+levels(as.factor(as.character(years$commitment.term)))
+# Convert `commitment.term` for segment 'years' into a numeric variable
+years$commitment.term = 
+  as.numeric(years$commitment.term)
+```
+
+As indicated in the Cook County criminal sentencing data documentation, a sentence length can be determined for each charge by considering the `commitment.unit` (hours, days, weeks, et cetera) and the `commitment.term`. For example, using the documentation instructions, one could take a charge with a commitment unit of "Weeks" and a commitment term of "4" and determine that the criminal defendent was sentenced to "4 Weeks" of whatever `commitment.type` (Prison, probation, rehabilitation, et cetera).  More over, if one wanted to determine what the sentence length is in terms of days, a coefficient of "7" days could be used in the case of weeks and multiplied with the commitment term to arrive at 28 days using the previous example. 
+
+For the present analysis, values for each charge are derived by creating a new variable `sentence.length` for each `commitment.unit` segment and standardizing into a common unit of "Days" by computing a `commitment.unit` coefficient for each segment (hours, days, weeks, months, and years) and applying the coefficient with multiplication or division where appropriate to the `commitment.term`. 
+
+For data frame `hours`, a coefficient of 24 (hours) is used to divide each `commitment.term` value in order to standardize the sentence length into day units (e.g. 48 hours / 24 hours [1 day] = 2 days). 
+
+For data frame `days`, no coefficient is applied to the `commitment.term` values as `days` is necessarily already standardized to day units (e.g. 4 days * 1 day = 4 days).
+
+For data frame `weeks`, a coefficient of 7 (days) is used to multiply each `commitment.term` value in order to standardize the sentence length into day units (e.g. 4 weeks * 7 days = 28 days). 
+
+For data frame `months`, a coefficient of 30.45 (days) is used to multiply each `commitment.term` value in order to standardize the sentence length into day units (e.g. 2 months * 30.45 days = 60.90 days). Note: 30.45 is chosen as the coefficient to represent months since the number of days per month varies depending on the month of the year and whether or not the month is February and the year a leap year. In a non-leap year, each month has a mean duration of 30.42 days (365 days / 12 months = 30.42 days). However, in a leap year, each month has a mean duration of 30.50 days (366 days / 12 months = 30.50 days). Since it is impractical for the purposes of this analysis to determine whether or not the sentenced months of a criminal defendent fall within a leap year or along particular months, each month is valued as 3.44 days in duration [(30.42 days * 3 years) + (30.50 days * 1 year) / 4 years = 30.44 day)].
+
+For data frame `years`, a coefficient of 365.2425 (days) is used to multiply each `commitment.term` value in order to standardize the sentence length into day units (e.g. 2 years * 365.28 days = 730.485 days). Note: each year is valued at 35.2425 days since the mean value of a month used in the analysis is 30.44 and (1 year * (12 months * 30.44 days) = 365.28 days.
+
+After each `commitment.term` for each `commitment.unit` data frame segment is standardized into days, the five data frames (`hours`, `days`, `weeks`, `months`, and `years`) are merged into one data frame `sentences`. Moreover, since each `commitment.term` value in the data frame has been standardized into days, all of the values for `commitment.unit` are converted to "Days" in order to reflect the change in units.
+
+```
+#### Create new variable `sentence.length` and standardize `commitment.term` to days ####
+
+# Hours (Divide by 24)
+hours$sentence.length =
+  (hours$commitment.term / 24)
+
+# Days (No standardization required)
+days$sentence.length =
+  days$commitment.term
+
+# Weeks (Multiply by 7)
+weeks$sentence.length =
+  (weeks$commitment.term * 7)
+
+# Months (Multiply by 30.44)
+months$sentence.length =
+  (months$commitment.term * 30.44)
+
+# Years (Multiply by 365.28)
+years$sentence.length =
+  (years$commitment.term * 365.28)
+
+# Recombine all time-based `commitment.unit` data frames into one data frame 'sentences'
+sentences = 
+  rbind(hours,
+        days,
+        weeks,
+        months,
+        years
+        )
+
+# Now that each `commitment.term` is standardized to days, reassign all `commitment.units` to "Days"
+sentences$commitment.unit = "Days"
+```
+
 
 
 

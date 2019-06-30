@@ -921,7 +921,27 @@ death =
         death2)
 # Determine what percentage of all observations resulted in a sentencing of "Death"
 paste0(round(nrow(death) / nrow(sentences) * 100, 2), "%")
+
+# Count of death commitment.type charges by `race`
+ggplot(death, mapping = 
+         aes(x = fct_infreq(death$race), 
+             fill = race)) +
+  scale_y_continuous(label = comma) +
+  geom_bar(stat = 'count', width = 0.5)  +
+  labs(x = "Race", 
+       y = "Count", 
+       title = "Count of Charges Resulting in a Death Sentencing by Race",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
 ```
+
+![alt text5]( https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-death-sentences-race.png)
 
 It should be noted that Illinois Governor Pat Quinn signed legislation in 2011 that abolished the death penalty in the state and the last execution occured in 1999. Fifteen convicted prisoners were on "death row" at the time of the abolition of the dealth penalty in Illinois, and the death sentences of all fifteen convicted prisoners were commuted to life sentences by Governor Quinn.
 
@@ -1016,9 +1036,28 @@ no_prison =
         probation_unsat,
         probation_instanter
 )
+
+# Count of no prison commitment.type charges by `race`
+ggplot(no_prison, mapping = 
+         aes(x = fct_infreq(no_prison$race), 
+             fill = race)) +
+  scale_y_continuous(label = comma) +
+  geom_bar(stat = 'count', width = 0.5)  +
+  labs(x = "Race", 
+       y = "Count", 
+       title = "Count of Charges Resulting in a No-Prison Sentencing by Race",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
+
 ```
 
-Include a visualization of no_prison by race
+![alt text4](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-no-prison-sentences-race.png)
 
 Prison yada yad
 
@@ -1039,9 +1078,32 @@ prison =
         cond_release_prison,
         jail,
         prison)
+
+# Count of prison sentencing by `race`
+ggplot(prison, mapping = 
+         aes(x = fct_infreq(prison$race), 
+             fill = race)) +
+  scale_y_continuous(label = comma) +
+  geom_bar(stat = 'count', width = 0.5)  +
+  labs(x = "Race", 
+       y = "Count", 
+       title = "Count of Charges Resulting in a Death Sentencing by Race",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
+
 ```
 
 Include a visualization of prison by race
+
+![alt text6](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-prison-sentences-race.png)
+
+
 
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com

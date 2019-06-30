@@ -334,35 +334,34 @@ Before removing each racial category from the data set, the data for each catego
 unknown_race = 
   dplyr::filter(sentences, sentences$race == 
                   "Unknown")
-
+# Remove records from main data frame 'sentences'
+sentences = 
+  dplyr::filter(sentences, sentences$race != 
+                  "Unknown")
 # Assign all records to a data frame  where the race of the defendant is "Mixed Race" for future inspection
 mixed_race = 
   dplyr::filter(sentences, sentences$race == 
                   "Mixed Race")
-
+# Remove records from main data frame 'sentences'
+sentences = 
+  dplyr::filter(sentences, sentences$race != 
+                  "Mixed Race")
 # Assign all records to a data frame where the race of the defendant is "Asian" for future inspection
 asian = 
   dplyr::filter(sentences, sentences$race == 
                   "Asian")
-
+# Remove records from main data frame 'sentences'
+sentences = 
+  dplyr::filter(sentences, sentences$race != 
+                  "Asian")
 # Assign all records to a data frame where the race of the defendant is "American Indian" for future inspection
 american_indian = 
   dplyr::filter(sentences, sentences$race == 
                   "American Indian")
-
-# Remove records from the data frame
+# Remove records from main data frame 'sentences'
 sentences = 
-  dplyr::filter(sentences, 
-                race != 
-                  "American Indian" |
-                race != 
-                  "Asian" |
-                race != 
-                  "Mixed Race" |
-                race != 
-                  "Unknown")
-
-
+  dplyr::filter(sentences, sentences$race != 
+                  "American Indian")
 # Factor `race` and add levels and labels
 sentences$race =
   factor(as.character(sentences$race,

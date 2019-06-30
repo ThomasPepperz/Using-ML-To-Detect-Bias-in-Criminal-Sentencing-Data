@@ -818,6 +818,53 @@ R> levels(sentences$commitment.type)
 [22] "Natural Life"                             "Periodic Imprisonment"                    "Probation"                               
 [25] "Repeat Offender Probation"                "Sex Offender Probation"                   "Veteran's Court Probation" 
 ```
+To produce visualizations of the data, use the following code:
+
+```
+# Count of charges by `sentence.type`
+ggplot(sentences, mapping = 
+         aes(x = fct_infreq(sentences$sentence.type), 
+             fill = sentence.type)) +
+  scale_y_continuous(label = comma) +
+  geom_bar(stat = 'count', width = 0.5)  +
+  coord_flip() +
+  labs(x = "Sentence Type", 
+       y = "Count", 
+       title = "Count of Charges by Sentence Type",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
+```
+
+![alt text1](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-charges-commitment-type.png)
+
+```
+# Count of charges by `commitment.type`
+ggplot(sentences, mapping = 
+         aes(x = fct_infreq(sentences$commitment.type), 
+             fill = commitment.type)) +
+  scale_y_continuous(label = comma) +
+  geom_bar(stat = 'count', width = 0.5)  +
+  coord_flip() +
+  labs(x = "Commitmet Type", 
+       y = "Count", 
+       title = "Count of Charges by Commitment Type",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
+```
+
+![alt text2](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-charges-sentence-type.png)
 
 It is stated in the *Cook County State Attorney 2017 Data Report* (Foxx, M. Kimberly 2018) that "Sentencing is the judgment imposed by the court on people who have been convicted. Each count for which there is a conviction receives a separate sentence; depending on the circumstances those sentences may be served concurrently or consecutively." 
 
@@ -914,7 +961,9 @@ cond_release_no_prison =
                 commitment.type != "Cook County Department of Corrections")
 ```
 
+![alt text3](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-race-conditional-release-type.png)
+
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com
 
 
-![alt text](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-charges-commitment-type.png)
+

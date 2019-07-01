@@ -1102,7 +1102,7 @@ ggplot(no_prison, mapping =
   geom_bar(stat = 'count', width = 0.5)  +
   labs(x = "Race", 
        y = "Count", 
-       title = "Count of Charges Resulting in a No-Prison Sentencing by Race",
+       title = "Count of Charges Resulting in a Non-Prison Sentence by Race",
        fill = "Legend") +
   theme_bw() +
   theme(text=element_text(family = "Times New Roman", 
@@ -1136,15 +1136,16 @@ prison =
         jail,
         prison)
 
-# Count of prison sentencing by `race`
-ggplot(prison, mapping = 
-         aes(x = fct_infreq(prison$race), 
-             fill = race)) +
+# Count of charges resulting in prison sentence by race
+ggplot(sentences, mapping = 
+         aes(x = fct_infreq(sentences$sentence.judge), 
+             fill = sentence.judge)) +
   scale_y_continuous(label = comma) +
+  coord_flip() +
   geom_bar(stat = 'count', width = 0.5)  +
   labs(x = "Race", 
        y = "Count", 
-       title = "Count of Charges Resulting in a Death Sentencing by Race",
+       title = "Count of Charges Resulting in a Prison Sentence by Race",
        fill = "Legend") +
   theme_bw() +
   theme(text=element_text(family = "Times New Roman", 
@@ -1160,7 +1161,89 @@ Include a visualization of prison by race
 
 ![alt text6](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-prison-sentences-race.png)
 
+```
+#### Segment data into Jury versus Bench (Judge) Trials
 
+# Segment data to jury trials
+jury_prison = 
+  filter(prison, sentence.judge == "")
+jury_no_prison = 
+  filter(no_prison, sentence.judge == "")
+
+# Segment data to judge trials
+judge_prison = 
+  filter(prison, sentence.judge != "")
+judge_no_prison = 
+  filter(no_prison, sentence.judge != "")
+
+# Add columns to indicate judge or jury trials
+jury_prison$trial.type= "Jury Trial"
+jury_no_prison$trial.type = "Jury Trial"
+
+judge_prison$trial.type = "Bench Trial"
+judge_no_prison$trial.type = "Bench Trial"
+
+jury_trials =
+  rbind(jury_prison,
+        jury_no_prison)
+
+bench_trials =
+  rbind(judge_prison,
+        judge_no_prison)
+
+trials =
+  rbind(bench_trials,
+        jury_trials)
+
+trials_table = 
+  as.data.frame(table(trials$trial.type))
+
+# Count of trials by type
+ggplot(trials_table ,aes(x=Var1 , y=Freq, fill=Var1)) + 
+  geom_bar(stat = 'identity', width=0.5) +
+  scale_y_continuous(label = comma) +
+  
+  labs(x = "Trial Type", 
+       y = "Count", 
+       title = "Count of Trials by Trial Type",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_fill_discrete(guide = FALSE)
+```
+
+![alt text10](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-trials-type.png)
+
+```
+bench_trials_table = 
+  as.data.frame(table(bench_trials$sentence.judge))
+
+bench_trials_table = 
+  bench_trials_table[bench_trials_table$Freq > 999,]
+
+# Count of trials presided by judge with 1,000 or more trials
+ggplot(bench_trials_table,aes(x=Var1 , y=Freq, fill=Var1)) + 
+  geom_bar(stat = 'identity') +
+  coord_flip() +
+  scale_y_continuous(label = comma) +
+  labs(x = "Name of Judge", 
+       y = "Count of Trials", 
+       title = "Count of Trials Presided Over Per Judge (Greater than 1,000)",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_fill_discrete(guide = FALSE)
+  ```
+
+![alt text9](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-trials-judge.png)
 
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com

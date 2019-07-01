@@ -1,7 +1,9 @@
 # Using ML To Detect Bias in Criminal Sentencing Data
 An R script that uses machine learning via random forests to examine [Cook County, IL criminal sentencing data](https://datacatalog.cookcountyil.gov/Courts/Sentencing/tg8v-tm6u) for human decision bias.
 
-## Accessing the Data
+## Introduction
+
+### Accessing the Data
 The data has been made available on the Github repo as a zipped CSV file. However, the easiest way to access the data is to query the Socratic Open Data API (SODA API) using the [R package](https://cran.r-project.org/web/packages/RSocrata/RSocrata.pdf) `RSocrata` (developed by Hugh Devlin, Ph. D., Tom Schenk, Jr., Gene Leynes, Nick Lucius, John Malc, Mark Silver- berg, and Peter Schmeideskamp). See the [website](https://dev.socrata.com/consumers/getting-started.html) for more detail. 
 
 To query the data, first install the `RSocrata` R package:
@@ -81,6 +83,30 @@ R> head(sentences)
 5            false                 Homicide           13
 6             true                 Homicide           14
 ```
+
+### Setup
+Begin by first loading (or downloading if not already installed) the required packages for the entire analysis:
+
+```
+# Stop R from printing using scientific notation
+options(scipen = 999)
+
+# Load packages
+library(RSocrata)
+library(dplyr)
+library(janitor)
+library(lubridate)
+library(ggplot2)
+library(gmodels)
+library(forcats)
+library(randomForest)
+library(party)
+library(rpart.plot)
+library(reprtree)
+```
+
+## Variables
+
 ### Description of the Variables
 Columns in the dataset include the following:
 
@@ -164,30 +190,7 @@ Columns in the dataset include the following:
 
 It should be noted that the variable types listed above are not necessarily the state of the variables throughout the analysis to be performed in R e.g. (dates are transformed from "m-d-y" to "YYYY-MM-DD" ("2019-01-01") in the R script and excludes references to hours and seconds since that time granularity was not included in the data set. "Checkboxes" are treated as Boolean variables that have values of "TRUE" or "FALSE."
 
-# Cleaning the Data
-
-## Setup
-Begin by first loading (or downloading if not already installed) the required packages for the entire analysis:
-
-```
-# Stop R from printing using scientific notation
-options(scipen = 999)
-
-# Load packages
-library(RSocrata)
-library(dplyr)
-library(janitor)
-library(lubridate)
-library(ggplot2)
-library(gmodels)
-library(forcats)
-library(randomForest)
-library(party)
-library(rpart.plot)
-library(reprtree)
-```
-
-## Variables
+### Cleaning the Data
 Unfortunately, there are no enforced naming conventions for files, objects, functions, and variables for the R language. Google has published ["Google's R Style Guide"](https://google.github.io/styleguide/Rguide.xml), which encourages user's to use lower-cased names separated by periods for variable names and is the convention for variable-naming that is followed in the following analysis. Statistician Hadley Wickham, the Chief Scientist at RStudio as well as author and maintainer of popular R packages that include `tidyverse`, `tidyr`, `ggplot`, and `dplyr` amongst many others, prefers to use the underscore to separate elements within noun objects (data frame and variable names). See Wickham's brief [style guide](http://adv-r.had.co.nz/Style.html) for more details. Furthermore, an interesting study regarding R naming conventions is Rasmus Bååth's article ["The State of Naming Conventions in R"](https://journal.r-project.org/archive/2012-2/RJournal_2012-2_Baaaath.pdf) published in the *The R Journal*, Vol. 4/2, December 2012.
 
 The following code uses the function `clean_names()` from the `janitor` package to format the variable names according to Google's R code style:
@@ -211,7 +214,7 @@ R> colnames(sentences)
 
 The following section focuses on the transformation of the variable data types for each feature as well as the formatting of the associated values. The first variable to be transformed is `race`.
 
-### Variable `race`
+#### Variable `race`
 Inspection of the data reveals many inconsistencies in how values for `race` has been inputted, which most likely is attributable either to inconsistent data input formatting policies amongst arresting agencies or to individual officers with the responsibility of inputting data.
 
 ```

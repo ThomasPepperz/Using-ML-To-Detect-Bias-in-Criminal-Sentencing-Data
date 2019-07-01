@@ -1435,14 +1435,5 @@ prp(tree_1)
 
 ![alt text17](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/jury-rf-tree-1.png)
 
-A 'pretty' version of the same tree:
-
-```
-# Generate a  second version of the same tree object visualization
-rpart.plot(tree_1)
-```
-
-![alt text16](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/jury-rf-tree-2.png)
-
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com

@@ -1404,8 +1404,45 @@ ggplot(error_df, aes(x=num_trees, y=error_rate)) +
 
 ![alt text14](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/error-rate-num-trees.png)
 
+```
+# Generate tree output for random forest object `jury_rf`
+R> head(getTree(jury_rf, k=1, labelVar=T))
+  left daughter right daughter       split var split point status prediction
+1             2              3          gender         1.0      1       <NA>
+2             4              5 age.at.incident        35.0      1       <NA>
+3             6              7  primary.charge         0.5      1       <NA>
+4             8              9           class      8189.0      1       <NA>
+5            10             11 age.at.incident        54.0      1       <NA>
+6            12             13 age.at.incident        45.5      1       <NA>
+```
+
+A visualization from a sample tree from the random forest:
+
+```
+# Fetch tree and assign to tree object `tree_1`
+tree_1 = 
+  rpart(jury_rf$call, 
+        data = 
+          jury_trials,
+        control = 
+          rpart.control(
+            minsplit = 20, 
+            cp = 0))
+            
+# Generate tree visualization
+prp(tree_1)   
+```
+
+![alt text17](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/jury-rf-tree-1.png)
+
+A 'pretty' version of the same tree:
+
+```
+# Generate a  second version of the same tree object visualization
+rpart.plot(tree_1)
+```
+
+![alt text16](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/jury-rf-tree-2.png)
+
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com
-
-
-

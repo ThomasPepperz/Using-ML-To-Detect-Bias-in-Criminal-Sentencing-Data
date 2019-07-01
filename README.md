@@ -871,7 +871,7 @@ ggplot(means.df.1,aes(x=race , y=sentence.length, fill=race)) +
   scale_fill_discrete(guide = FALSE)
 ```
 
-![alt text12](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/mean-sentence-sentence-length-race.png)
+![alt text12](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/mean-sentence-length-race.png)
 
 ### Variable `primary.charge`
 Because there may exist significant differences in the judicial treatment of criminal charges that are classified as the primary charge, the data frame 'sentences' is further segmented according to whether or not it is a primary charge. Those observations where the value of `primary.charge` is "false" are assigned to data frame `primary_charge_false` and those with the value of 'true' are assigned to `primary_charge_true`. However, prior to segmentation, the values of each row are transformed such that those with with the value "true" are converted to "1" and those with the value "false" are converted to "0." `primary.charge` is first factored before the data frame is segmented.

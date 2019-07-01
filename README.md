@@ -1,6 +1,10 @@
 # Using ML To Detect Bias in Criminal Sentencing Data
 An R script that uses machine learning via random forests to examine [Cook County, IL criminal sentencing data](https://datacatalog.cookcountyil.gov/Courts/Sentencing/tg8v-tm6u) for human decision bias.
 
+## Abstract
+
+Increasingly, machine learning is praised for its ability to learn from data and apply its modeling power for predictive purposes. Similarly, machine learning has also increasingly been criticized for its tendency to learn and acquire the human bias and prejudices present in the data from which it learns. Since defining bias in human decision-making and identifying human bias di- rectly in data is notoriously difficult, the following paper establishes a framework for detecting and evaluating racial bias in the criminal sentencing procedures and practices of the American judicial system by identifying bias present in machine learning models trained on data instead of attempting to measure bias in data directly. The following paper details the application of linear regression to Cook County, Illinois criminal sentencing data in order to model and predict sen- tencing outcomes of defendants in terms of total months sentenced to prison. By examining the coefficients associated with the variable of race from a linear regression model built to predict the total sentence length of a crime, one is able to audit judicial bias and overreliance upon irrelevant features of a criminal defendant such as gender and race. The following paper formalizes, gener- alizes, and applies the discussed techniques of machine learning model auditing as a tool for the detection of human bias and prejudice in human decision-making with the end goal of mobilizing data to ensure social justice whenever possible.
+
 ## Introduction
 
 ### Accessing the Data
@@ -761,9 +765,11 @@ years_errors =
 # Remove any errors from the segmented `commitment.unit` data frame
 years = 
   dplyr::filter(years, 
-                commitment.term != "2`" |
-                commitment.term != ""
-                  )
+                years$commitment.term != "2`")
+years = 
+  dplyr::filter(years, 
+                years$commitment.term != "")
+                
 # Re-inspect `commitment.term` for errors in segment 'years'
 levels(as.factor(as.character(years$commitment.term)))
 # Convert `commitment.term` for segment 'years' into a numeric variable
@@ -822,7 +828,50 @@ sentences =
 
 # Now that each `commitment.term` is standardized to days, reassign all `commitment.units` to "Days"
 sentences$commitment.unit = "Days"
+
+# Distribution of sentences by length (in days) 
+ggplot(sentences, mapping = aes(sentence.length, fill = sentence.length)) +
+  geom_histogram(fill="blue2", bins = 100) +
+  scale_x_continuous(limits = c(0, 20000), label = comma) +
+  scale_y_continuous(label = comma) +
+  labs(x = "Sentence Length (in Days)", 
+       y = "Frequency", 
+       title = "Distribution of Prison Sentences by Length (in days)") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
 ```
+
+![alt text11](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/distribution-sentence-lengths.png)
+
+
+```
+# Plot mean sentence length for each race.
+means.df.1 = 
+  aggregate(formula = sentence.length ~ race, data = sentences, FUN = mean)
+
+# Mean sentence length by race
+ggplot(means.df.1,aes(x=race , y=sentence.length, fill=race)) + 
+  geom_bar(stat = 'identity', width=0.5) +
+  scale_y_continuous(label = comma) +
+  labs(x = "Race", 
+       y = "Sentence Length (days)", 
+       title = "Mean Sentence Length by Race",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_fill_discrete(guide = FALSE)
+```
+
+![alt text12](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/mean-sentence-sentence-length-race.png)
 
 ### Variable `primary.charge`
 Because there may exist significant differences in the judicial treatment of criminal charges that are classified as the primary charge, the data frame 'sentences' is further segmented according to whether or not it is a primary charge. Those observations where the value of `primary.charge` is "false" are assigned to data frame `primary_charge_false` and those with the value of 'true' are assigned to `primary_charge_true`. However, prior to segmentation, the values of each row are transformed such that those with with the value "true" are converted to "1" and those with the value "false" are converted to "0." `primary.charge` is first factored before the data frame is segmented.

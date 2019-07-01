@@ -1146,6 +1146,14 @@ no_prison =
         probation_instanter
 )
 
+# Create new variable `outcome`
+no_prison$outcome = 
+  "No Prison"
+  
+# Factor `outcome`
+no_prison$outcome =
+  factor(no_prison$outcome)
+
 # Count of no prison commitment.type charges by `race`
 ggplot(no_prison, mapping = 
          aes(x = fct_infreq(no_prison$race), 
@@ -1187,6 +1195,14 @@ prison =
         cond_release_prison,
         jail,
         prison)
+        
+# Add a variable `outcome`
+prison$outcome = 
+  "Prison"
+  
+# Factor `outcome`
+prison$outcome = 
+  factor(prison$outcome)
 
 # Count of charges resulting in prison sentence by race
 ggplot(sentences, mapping = 
@@ -1296,6 +1312,97 @@ ggplot(bench_trials_table,aes(x=Var1 , y=Freq, fill=Var1)) +
   ```
 
 ![alt text9](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-trials-judge.png)
+
+# Detecting Bias with Machine Learning: Random Forests
+
+Explanation of methodology
+
+Explanation of first model 
+
+```
+#### Detecting Bias with Random Forests ####
+
+set.seed(71)
+
+# Jury Random Forest
+jury_rf =
+  randomForest(
+  outcome ~
+    race + 
+    gender + 
+    age.at.incident +
+    primary.charge +
+    class,
+  importance = T,
+  data = jury_trials, 
+  ntree=500)
+```
+
+Analysis
+
+```
+# Print out summary output from random forest
+R> print(jury_rf)
+
+Call:
+ randomForest(formula = outcome ~ race + gender + age.at.incident +      primary.charge + class, data = jury_trials, importance = T,      ntree = 500) 
+               Type of random forest: classification
+                     Number of trees: 500
+No. of variables tried at each split: 2
+
+        OOB estimate of  error rate: 26.55%
+Confusion matrix:
+          Prison No Prison class.error
+Prison       115       126   0.5228216
+No Prison     41       347   0.1056701
+```
+
+```
+R> #Evaluate variable importance
+R> importance(jury_rf)
+                  Prison No Prison MeanDecreaseAccuracy MeanDecreaseGini
+race            20.53392  12.58525             21.11962         17.37751
+gender          23.91495  12.13507             22.26152         13.74164
+age.at.incident 15.94157  15.69035             21.24803         53.14267
+primary.charge  18.67515  25.68333             29.96176         12.27850
+class           37.08941  28.94115             43.06146         37.81235
+R> 
+```
+
+Analysis. Variable Importance Charts (Mean Decrease Accuracy & Gini Impurity Decrease) yields the following chart.
+
+```
+# Generate variable importance charts
+varImpPlot(jury_rf, col = c("blue","green","yellow4", "orange", "red"))
+```
+
+![alt text13](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/jury_rf-var-imp.png)
+
+Out of Bag explanation
+
+```
+# Out-of-Bag (OOB) Estimate of Error
+error_df = 
+  data.frame(error_rate = jury_rf$err.rate[, 'OOB'], 
+             num_trees = 1:jury_rf$ntree)
+             
+# Create error rate chart
+ggplot(error_df, aes(x=num_trees, y=error_rate)) +
+  geom_line() +
+  labs(x = "Number of Trees Grown", 
+       y = "Error Rate", 
+       title = "Progression of Error Rate By Increasing Number of Trees",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_fill_discrete(guide = FALSE)
+```
+
+![alt text14](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/error-rate-num-treesimp.png)
 
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com

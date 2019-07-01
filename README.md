@@ -1376,7 +1376,7 @@ Analysis. Variable Importance Charts (Mean Decrease Accuracy & Gini Impurity Dec
 varImpPlot(jury_rf, col = c("blue","green","yellow4", "orange", "red"))
 ```
 
-![alt text13](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/jury_rf-var-imp.png)
+![alt text13](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/jury_rf_var_imp.png)
 
 Out of Bag explanation
 
@@ -1402,7 +1402,7 @@ ggplot(error_df, aes(x=num_trees, y=error_rate)) +
   scale_fill_discrete(guide = FALSE)
 ```
 
-![alt text14](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/error-rate-num-treesimp.png)
+![alt text14](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/error-rate-num-trees.png)
 
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com

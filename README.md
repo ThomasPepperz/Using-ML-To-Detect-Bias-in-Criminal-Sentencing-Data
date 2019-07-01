@@ -12,13 +12,13 @@ The data has been made available on the Github repo as a zipped CSV file. Howeve
 
 To query the data, first install the `RSocrata` R package:
 
-```
+```r
 install.packages("RSocrata")
 ```
 
 Once installed, load the `RSocrata` package:
 
-```
+```r
 library(RSocrata)
 ```
 
@@ -26,7 +26,7 @@ Navigate to the Cook County Open Data [website](https://datacatalog.cookcountyil
 
 Then assign the copied URI to an object named `apiEndpoint`:
 
-```
+```r
 # Query API and assign to `apiEndpoint`
 apiEndpoint = 
   "https://datacatalog.cookcountyil.gov/resource/tg8v-tm6u.csv"
@@ -34,7 +34,7 @@ apiEndpoint =
 
 After assigning the endpoint URI to the object, use the `read.socrata()` function to query the data from SODA API, assigning the returned data to a data frame object named `sentences`:
 
-```
+```r
 # Query the SODA API and assign the returned data to data frame object `sentences`
 sentences = 
   read.socrata(apiEndpoint)
@@ -42,7 +42,7 @@ sentences =
 
 As downloaded from the SODA API, the data set comprises 221,170 observations and 39 features, which each row representing a charge that resulted in decision of 'guilty', , The return data should look similar to the structure of the following output:
 
-```
+```r
 R> head(sentences)
       case_id case_participant_id   charge_id charge_version_id primary_charge       offense_title       chapter act   section class
 1 61601638368         1.13581e+11 82263540230       88097103639          false FIRST DEGREE MURDER            38   - 9-1(a)(2)     X
@@ -91,7 +91,7 @@ R> head(sentences)
 ### Setup
 Begin by first loading (or downloading if not already installed) the required packages for the entire analysis:
 
-```
+```r
 # Stop R from printing using scientific notation
 options(scipen = 999)
 
@@ -199,7 +199,7 @@ Unfortunately, there are no enforced naming conventions for files, objects, func
 
 The following code uses the function `clean_names()` from the `janitor` package to format the variable names according to Google's R code style:
 
-```
+```r
 # Cooerce column names
 sentences = 
   sentences %>% 
@@ -221,7 +221,7 @@ The following section focuses on the transformation of the variable data types f
 #### Variable `race`
 Inspection of the data reveals many inconsistencies in how values for `race` has been inputted, which most likely is attributable either to inconsistent data input formatting policies amongst arresting agencies or to individual officers with the responsibility of inputting data.
 
-```
+```r
 R> levels(as.factor(sentences$race))
  [1] ""                                 "American Indian"                  "Asian"                           
  [4] "ASIAN"                            "Biracial"                         "Black"                           
@@ -250,7 +250,7 @@ Using the language and taxonomy outlined by the U.S. Census Bureau, it can be co
 
 To begin, `race` is converted into a character in order to perform basic text cleaning such as removing brackets.
 
-```
+```r
 ## Variable: `race`
 
 # Transform `race` into a character variable type
@@ -265,7 +265,7 @@ sentences$race =
 
 It is an easy call to merge records with `race` value "ASIAN" with records of value "Asian." 
 
-```
+```r
 # Merge all records with `race`` value of "ASIAN" into `race` value "Asian"
 sentences$race[sentences$race %in%
                  "ASIAN"] = "Asian"
@@ -273,7 +273,7 @@ sentences$race[sentences$race %in%
 
 Those records with a blank value for `race` are merged with records of `race` value "Unknown."
 
-```
+```r
 # Merge all records with `race`` value of "" (blank) into `race` value "Unknown"
 sentences$race[sentences$race %in%
                  ""] = "Unknown"

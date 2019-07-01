@@ -281,7 +281,7 @@ sentences$race[sentences$race %in%
 
 As stated previously, all records with a  `race` value of "White [Hispanic or Latino]" are merged with "Hispanic." Additionally, like how the `race` value "ASIAN" is merged into the similar "Asian" category, values of "HISPANIC" are merged into the category of "Hispanic."
 
-```
+```r
 # Merge all records with `race` value of "White Hispanic or Latino" into `race value "Hispanic"
 sentences$race[sentences$race %in%
                  "White Hispanic or Latino"] = "Hispanic"
@@ -292,7 +292,7 @@ sentences$race[sentences$race %in%
 
 Though it was a difficult, and somewhat arbitrary decision without any guidance, the `race` value of "White/Black Hispanic or Latino" is merged into the newly-created category of "Mixed Race" due to the inclusion of "White/Black" in the Cook County-named `race` category. Furthermore, "Biracial" is also merged into the "Mixed Race" category. It should be noted that no information regarding the definition of "Biracial" is included with the Cook County criminal sentencing data set, and it is unclear whether or not "Biracial" includes other mixed racial groups other than "white" and "black" or "African American." It could be argued that if the `race` value of "Biracial" indeed were to be confirmed to be inclusive of only those defendents with a mixed race of "white" and "black," then it would be appropriate to merge "Biracial" into the `race` category of "Black" since many believe that the contemporary American judicial system unjustly views biracial individuals as neither "biracial" nor "white" but as "black," a possible social consequence of perception inherited from the historical American notion embodied in what was known as the "One-Drop Rule," which was a legal principle used for demographic and statistical purposes to define any American individual with any identifiable `black` racial heritage as `black`, thereby permitting the discriminatory and racist laws written to oppress black Americans to those of mixed racial ancestry as well. However, because it is unclear from the data whether "Biracial" refers to only those of white-black mixed race, "Biracial" has been merged into "Mixed Race" for purposes of the present analysis.
 
-```
+```r
 # Merge all records with `race` value of "White/Black Hispanic or Latino" into `race` value "Mixed Race"
 sentences$race[sentences$race %in%
                  "White/Black Hispanic or Latino"] = "Mixed Race"
@@ -303,7 +303,7 @@ sentences$race[sentences$race %in%
 
 Next, `race` is transformed into a factored variable, and tabulations of the number of observations for each category are printed out to the console. Additionally, percentages the total number of observations are calculated for each racial categories that seem particularly low after examining the table output.
 
-```
+```r
 # Transform `race` into a factor 
 sentences$race =
   as.factor(sentences$race)
@@ -336,7 +336,7 @@ Since the categories of "American Indian" (0.05%), "Asian" (0.6%), "Mixed Race" 
 
 Before removing each racial category from the data set, the data for each category is assigned to a data frame object named after `race` value.
 
-```
+```r
 # Assign all records to a data frame where the race of the defendant is "Unknown" for future inspection
 unknown_race = 
   dplyr::filter(sentences, sentences$race == 
@@ -405,7 +405,7 @@ ggplot(sentences, mapping =
 ### Variable `gender`
 The next variable to be inspected and transformed is `gender`. Tabulations of the number of observations for each category are printed out to the console.
 
-```
+```r
 R> table(sentences$gender)
 
                                                Female                       Male        Male name, no gender given 
@@ -416,7 +416,7 @@ R> table(sentences$gender)
 
 Just as with `race`, inconsistencies among the values of `gender` abound. Those records where the `gender` value is blank are merged into the category of "Unknown." Additionally, the categor of "Unknown Gender" is merged into category "Unknown." Interestingly, three records exist with a value of "Male name, no gender given," representing an officer or arresting agency's attempt at some point to salvage data. The three records with `gender` value "Male name, no gender given" are also merged into the category of "Unknown."
 
-```
+```r
 # Transform `gender` into a character variable type
 sentences$gender = 
   as.character(sentences$gender)
@@ -433,7 +433,7 @@ sentences$gender[sentences$gender %in%
 
 Just as in with `race`, those records with an "Unknown" `gender` value, which represent 0.02% of the observations remaining in the data set, are removed.
 
-```
+```r
 # Determine what percentage of all observations is "Unknown"
 paste0(round(nrow(sentences[sentences$gender == 'Unknown',]) / nrow(sentences) * 100, 2), "%")
 
@@ -470,7 +470,7 @@ ggplot(sentences, mapping =
 ### Variable `age.at.incident`
 Next, the variable `age.at.incident` is addressed. The variable refers to the age of the defendent at the time of the incident (as opposed to the time of arrest or sentencing) expressed as a whole number and in years. Upon inspection of the values represented in `age.at.incident`, it is discovered that the data ranges from "17" up through "130." 
 
-```
+```r
 ## Variable: `age.at.incident`
 
 # Printout levels and attempt to detect anomalies or data entry mistakes
@@ -485,7 +485,7 @@ R> levels(as.factor(sentences$age.at.incident))
 
 Though there are individuals with verifiable ages of up to 122 years old at time of death, all records with reported ages greater than 100 are removed from the dataset out of concern for data input mistakes more so than concern for the outlier effect. The percentage of observations with a value greater than 100 for `age.at.incident` is 1.26% of the total remaining observations.
 
-```
+```r
 # Remove obviously wrong ages: ages > 100
 sentences$age.at.incident = 
   as.numeric(sentences$age.at.incident)
@@ -523,7 +523,7 @@ Upon inspection of the category values for `commitment.unit`, some unexpected an
 
 Later in the analysis, a new feature, `sentence.length`, is derived from combining `commitment.unit` with `commitment.term`. In order to achieve the derivation of the new variable, non-temporal and determinant values such as "Natural Life" and "Dollars" are removed in order to produce `sentence.length`
 
-```
+```r
 ## Variable: `commitment.unit` 
 
 # Inspect the categories included in `commitment.unit`
@@ -536,7 +536,7 @@ R> levels(as.factor(sentences$commitment.unit))
 
 The following code chunk computes and prints out the percentage of the total number of remaining observations in the data set for each of the non-temporal `commitment.unit` values. Except for the "Term" commitment unit (1.04%), each of the other non-temporal commitment units represent approximately one-half or less of a percent of the total number of observations in the data set. Since each commitment unit type constitutes a relatively small percentage of the total data set and because each is a non-temporal commitment unit, they are removed from the main data frame `sentences` are are assigned to a data frame named after each unit for further inspection.
 
-```
+```r
 R> # Determine what percentage of all observations is blank
 R> paste0(round(nrow(sentences[sentences$commitment.unit == "",]) / nrow(sentences) * 100, 2), "%")
 [1] "0.63%"
@@ -565,7 +565,7 @@ R> paste0(round(nrow(sentences[sentences$commitment.unit == "Term",]) / nrow(sen
 
 For each non-temporal `commitment.unit` value, the associated records are first assigned to a data frame named after the unit before being removed from the main data frame `sentences`.
 
-```
+```r
 #### Non-temporal `commitment.unit` values ####
 
 # Transform `commitment.unit` to characters
@@ -617,7 +617,7 @@ sentences =
 
 The `commitment.unit` value of "Natural Life" is an interesting and unique commitment unit as it is a temporal unit but unlike hours, days, or weeks, "Natural Life" is an indeterminate value and cannot be quantified in a useful and standardized manner. Natural life sentences are discussed later in the analysis along with a discussion of determinate, temporal commitment terms that are long enough that the resulting sentence length is for all intents and purposes a natural life sentence.
 
-```
+```r
 # Assign "Natural Life" to a data frame object for further inspection
 natural_life = 
   dplyr::filter(sentences, commitment.unit == "Natural Life")
@@ -628,7 +628,7 @@ sentences =
 
 For each temporal commitment unit (hours, days, weeks, months, and years), the observations for the associated values are subsetted and assigned to a data frame named after the unit before being removed from the main data frame `sentences`. Then, the variable `commitment.term` for each data frame is inspected for errors by examining the levels produced from factoring the variable. In many of the data frames, the commitment term values include leading zeroes, which either indicate data input errors or merely represent the idiosyncratic data input formatting of an individual officer or arresting agency. Leading zeroes are removed and those non-zero values that remain are left included in the data set and treated as non-errors. However, those values that were represented as either "0" or "00" are removed from the data frame and treated as errors. Finally, each value in `commitment.term` is re-inspected for errors before the variable is transformed from a character to a numeric variable.
 
-```
+```r
 #### Temporal `commitment.unit` values ####`
 
 # Hours: Assign "Hours" to a data frame object for further inspection
@@ -794,7 +794,7 @@ For data frame `years`, a coefficient of 365.2425 (days) is used to multiply eac
 
 After each `commitment.term` for each `commitment.unit` data frame segment is standardized into days, the five data frames (`hours`, `days`, `weeks`, `months`, and `years`) are merged into one data frame `sentences`. Moreover, since each `commitment.term` value in the data frame has been standardized into days, all of the values for `commitment.unit` are converted to "Days" in order to reflect the change in units.
 
-```
+```r
 #### Create new variable `sentence.length` and standardize `commitment.term` to days ####
 
 # Hours (Divide by 24)
@@ -849,7 +849,7 @@ ggplot(sentences, mapping = aes(sentence.length, fill = sentence.length)) +
 ![alt text11](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/distribution-sentence-lengths.png)
 
 
-```
+```r
 # Plot mean sentence length for each race.
 means.df.1 = 
   aggregate(formula = sentence.length ~ race, data = sentences, FUN = mean)
@@ -876,7 +876,7 @@ ggplot(means.df.1,aes(x=race , y=sentence.length, fill=race)) +
 ### Variable `primary.charge`
 Because there may exist significant differences in the judicial treatment of criminal charges that are classified as the primary charge, the data frame 'sentences' is further segmented according to whether or not it is a primary charge. Those observations where the value of `primary.charge` is "false" are assigned to data frame `primary_charge_false` and those with the value of 'true' are assigned to `primary_charge_true`. However, prior to segmentation, the values of each row are transformed such that those with with the value "true" are converted to "1" and those with the value "false" are converted to "0." `primary.charge` is first factored before the data frame is segmented.
 
-```
+```r
 #### Primary Charge ####
 
 # Transform `primary.charge` into a character to prepare to replace values
@@ -904,7 +904,7 @@ nrow(sentences) == nrow(primary_charge_false) + nrow(primary_charge_true)
 ### Variables `sentence.type` & `commitment.type`
 The next variables considered are `sentence.type` and `commitment.type`, which both describes the type of punishment to which a criminal defendent is sentenced for a particular charge. Whereas the documentation describes `sentence.type` as a "broad type of sentence issued," it characterizes `commitment.type` as "a more specific type of sentence issued. There are fourteen different sentence types and twenty five commitment types present in the Cook County criminal sentencing data set, which are listed in the following R code output:
 
-```
+```r
 #### Sentence Type Segmentation ####
 
 # Print out levels of `sentence.type`
@@ -929,7 +929,7 @@ R> levels(sentences$commitment.type)
 ```
 To produce visualizations of the data, use the following code:
 
-```
+```r
 # Count of charges by `sentence.type`
 ggplot(sentences, mapping = 
          aes(x = fct_infreq(sentences$sentence.type), 
@@ -952,7 +952,7 @@ ggplot(sentences, mapping =
 
 ![alt text1](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-charges-commitment-type.png)
 
-```
+```r
 # Count of charges by `commitment.type`
 ggplot(sentences, mapping = 
          aes(x = fct_infreq(sentences$commitment.type), 
@@ -985,7 +985,7 @@ Though the documentation does not define nor describe each of the possible sente
 
 The first sentence-commitment type examined and segmented is "Death." Interestingly, "Death" is both a value for `sentence.type` and `commitment.type`. There are 59 charges that resulted in a sentence type of "Death." 
 
-```
+```r
 # Death Penalty 1: Assign rows where `sentence.type` is "Death" to data frame
 death1 = 
   dplyr::filter(sentences, sentence.type == "Death")
@@ -998,7 +998,7 @@ sentences =
 
 Confusingly, when examining the commitment type for those records with a sentence type of "Death," only a portion of those records have "Death" listed as the commitment type as well. 
 
-```
+```r
 R> # Print out levels of `commitment.type` for 'death1'
 R> levels(as.factor(as.character(death1$commitment.type)))
 [1] ""                                      "Cook County Department of Corrections" "Death"                                
@@ -1007,7 +1007,7 @@ R> levels(as.factor(as.character(death1$commitment.type)))
 
 Too add to the confusion, there is one observation where the more specific sentencing variable of `commitment.type` is "Death" but the broader `sentence.type` is not "Death" but instead listed as "Conversion."
 
-```
+```r
 # Death Penalty 2: Assign rows where `commitment.type` is "Death" to data frame
 death2 =
   dplyr::filter(sentences, commitment.type == "Death")
@@ -1023,7 +1023,7 @@ R> levels(as.factor(as.character(death2$sentence.type)))
 
 Data frames `death1` and `death2` are then combined into one data frame, `death`. The number of observations that resulted in a sentencing of death represent 0.03% of the entire number of rows from the Cook County criminal sentencing data set. 
 
-```
+```r
 # Death: Combine data frames 'death1' and 'death2' into one data frame 'death'
 death = 
   rbind(death1,
@@ -1058,7 +1058,7 @@ It should be noted that Illinois Governor Pat Quinn signed legislation in 2011 t
 
 Talk ABOUT CONDITIONAL DISCHARGE AND RELEASES
 
-```
+```r
 #### Conditional Sentences ####
 
 # Segment conditional discharge sentence types
@@ -1092,7 +1092,7 @@ cond_release_no_prison =
 
 No Prison yada yada
 
-```
+```r
 #### No Prison Sentence Types ####
 
 # 2nd Chance Probation
@@ -1178,7 +1178,7 @@ ggplot(no_prison, mapping =
 
 Prison yada yad
 
-```
+```r
 #### Prison Sentence Types ####
 
 # Jail
@@ -1229,7 +1229,7 @@ Include a visualization of prison by race
 
 ![alt text6](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-prison-sentences-race.png)
 
-```
+```r
 #### Segment data into Jury versus Bench (Judge) Trials
 
 # Segment data to jury trials
@@ -1286,7 +1286,7 @@ ggplot(trials_table ,aes(x=Var1 , y=Freq, fill=Var1)) +
 
 ![alt text10](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-trials-type.png)
 
-```
+```r
 bench_trials_table = 
   as.data.frame(table(bench_trials$sentence.judge))
 
@@ -1319,7 +1319,7 @@ Explanation of methodology
 
 Explanation of first model 
 
-```
+```r
 #### Detecting Bias with Random Forests ####
 
 set.seed(71)
@@ -1340,7 +1340,7 @@ jury_rf =
 
 Analysis
 
-```
+```r
 # Print out summary output from random forest
 R> print(jury_rf)
 
@@ -1357,7 +1357,7 @@ Prison       115       126   0.5228216
 No Prison     41       347   0.1056701
 ```
 
-```
+```r
 R> #Evaluate variable importance
 R> importance(jury_rf)
                   Prison No Prison MeanDecreaseAccuracy MeanDecreaseGini
@@ -1371,7 +1371,7 @@ R>
 
 Analysis. Variable Importance Charts (Mean Decrease Accuracy & Gini Impurity Decrease) yields the following chart.
 
-```
+```r
 # Generate variable importance charts
 varImpPlot(jury_rf, col = c("blue","green","yellow4", "orange", "red"))
 ```
@@ -1380,7 +1380,7 @@ varImpPlot(jury_rf, col = c("blue","green","yellow4", "orange", "red"))
 
 Out of Bag explanation
 
-```
+```r
 # Out-of-Bag (OOB) Estimate of Error
 error_df = 
   data.frame(error_rate = jury_rf$err.rate[, 'OOB'], 
@@ -1404,7 +1404,7 @@ ggplot(error_df, aes(x=num_trees, y=error_rate)) +
 
 ![alt text14](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/error-rate-num-trees.png)
 
-```
+```r
 # Generate tree output for random forest object `jury_rf`
 R> head(getTree(jury_rf, k=1, labelVar=T))
   left daughter right daughter       split var split point status prediction
@@ -1418,7 +1418,7 @@ R> head(getTree(jury_rf, k=1, labelVar=T))
 
 A visualization from a sample tree from the random forest:
 
-```
+```r
 # Fetch tree and assign to tree object `tree_1`
 tree_1 = 
   rpart(jury_rf$call, 

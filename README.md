@@ -372,8 +372,28 @@ sentences$race =
                         'White'
                       ),
                       exclude = NULL))
+                      
+# Count of prison defendants by `race`
+ggplot(sentences, mapping = 
+         aes(x = fct_infreq(sentences$race), 
+             fill = race)) +
+  scale_y_continuous(label = comma) +
+  geom_bar(stat = 'count', width = 0.5)  +
+  labs(x = "Race", 
+       y = "Count", 
+       title = "Count of Defendants by Race",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
 
 ```
+
+![alt text7](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-defendants-race.png)
 
 ### Variable `gender`
 The next variable to be inspected and transformed is `gender`. Tabulations of the number of observations for each category are printed out to the console.
@@ -416,9 +436,29 @@ unknown_gender =
 
 # Remove records with "Unknown" gender from the dataframe
 sentences = 
-  dplyr::filter(sentences, sentences$race != 
+  dplyr::filter(sentences, sentences$gender != 
                   "Unknown")
+                  
+# Count of defendants by `gender`
+ggplot(sentences, mapping = 
+         aes(x = fct_infreq(sentences$gender), 
+             fill = gender)) +
+  scale_y_continuous(label = comma) +
+  geom_bar(stat = 'count', width = 0.5)  +
+  labs(x = "Gender", 
+       y = "Count", 
+       title = "Count of Defendants by Gender",
+       fill = "Legend") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
 ```
+
+![alt text8](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/count-defendants-gender.png)
 
 ### Variable `age.at.incident`
 Next, the variable `age.at.incident` is addressed. The variable refers to the age of the defendent at the time of the incident (as opposed to the time of arrest or sentencing) expressed as a whole number and in years. Upon inspection of the values represented in `age.at.incident`, it is discovered that the data ranges from "17" up through "130." 
@@ -450,7 +490,24 @@ age_errors =
 # Remove all ages where defendent's age is greater than 100 at time of incident
 sentences = 
   dplyr::filter(sentences, age.at.incident <= 100)
+  
+# Distribution of defendants (age at time of incident)
+ggplot(sentences, mapping = aes(age.at.incident, fill = age.at.incident)) +
+  geom_histogram(fill="orange2", bins = 40) +
+  scale_y_continuous(label = comma) +
+  labs(x = "Age", 
+       y = "Frequency", 
+       title = "Distribution of Defendant Ages at Time of Incident") +
+  theme_bw() +
+  theme(text=element_text(family = "Times New Roman", 
+                          face = "bold", 
+                          size = 12,
+                          hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(guide = FALSE)
 ```
+
+![alt text9](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/distribution-defendants-age.png)
 
 ### Variables `commitment.unit` & `commitment.term`
 The next variables of interest are `commitment.unit` and `commitment.term`, and is one of special importance and interest to the analysis as `commitment.unit` and `commitment.term` can be used to derive the total sentence length of convicted defendents.

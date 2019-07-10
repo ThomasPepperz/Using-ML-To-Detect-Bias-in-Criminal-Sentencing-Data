@@ -3,7 +3,7 @@ An R script that uses machine learning via random forests to examine [Cook Count
 
 ## Abstract
 
-Increasingly, machine learning is praised for its ability to learn from data and apply its modeling power for predictive purposes. Similarly, machine learning has also increasingly been criticized for its tendency to learn and acquire the human bias and prejudices present in the data from which it learns. Since defining bias in human decision-making and identifying human bias di- rectly in data is notoriously difficult, the following paper establishes a framework for detecting and evaluating racial bias in the criminal sentencing procedures and practices of the American judicial system by identifying bias present in machine learning models trained on data instead of attempting to measure bias in data directly. The following paper details the application of linear regression to Cook County, Illinois criminal sentencing data in order to model and predict sen- tencing outcomes of defendants in terms of total months sentenced to prison. By examining the coefficients associated with the variable of race from a linear regression model built to predict the total sentence length of a crime, one is able to audit judicial bias and overreliance upon irrelevant features of a criminal defendant such as gender and race. The following paper formalizes, gener- alizes, and applies the discussed techniques of machine learning model auditing as a tool for the detection of human bias and prejudice in human decision-making with the end goal of mobilizing data to ensure social justice whenever possible.
+Increasingly, machine learning is praised for its ability to learn from data and apply its modeling power for predictive purposes. Similarly, machine learning has also increasingly been criticized for its tendency to learn and acquire the human bias and prejudices present in the data from which it learns. Since defining bias in human decision-making and identifying human bias di- rectly in data is notoriously difficult, the following paper establishes a framework for detecting and evaluating racial bias in the criminal sentencing procedures and practices of the American judicial system by identifying bias present in machine learning models trained on data instead of attempting to measure bias in data directly. The following paper details the application of linear regression & random forests to Cook County, Illinois criminal sentencing data in order to model and predict sentencing length & outcomes of defendants in terms of total days sentenced to prison (linear regression) and prison versus non-prison sentencing outcomes (random forests). By examining the coefficients associated with the variable of race from a linear regression model built to predict the total sentence length of a crime, one is able to audit judicial bias and overreliance upon irrelevant features of a criminal defendant such as gender and race. Furthermore, by examining the mean accuracy decrease and decrease in Gini impurity associated with the random forest models, one is able to understand the model's dependence upon individual variables such as the crime's class and the defendant's gender, race, and age. The following paper formalizes, generalizes, and applies the discussed techniques of machine learning model auditing as a tool for the detection of human bias and prejudice in human decision-making with the end goal of mobilizing data to ensure social justice whenever possible.
 
 ## Introduction
 
@@ -1315,14 +1315,49 @@ ggplot(bench_trials_table,aes(x=Var1 , y=Freq, fill=Var1)) +
 
 # Detecting Bias with Machine Learning: Random Forests
 
-Explanation of methodology
+## Methodology
 
-Explanation of first model 
+The following section applies both linear regression and random forests to the data in order to model the data and examine it for the presence of bias in human decision making. 
+
+Ordinary least-square linear regression in order to attempt to model the relationship between sentence length (the outcome variable) and several predictor variables such as `race`, `gender`, `age.at.incident`, and `class`. The coefficients produced by the model are of special interest as each is interpreted in order to determine the average expected value of a charge's resulting prison sentence length. Random forests are used to train a model to predict whether a charge woudl result in a prison or non-prison sentence for a defendant. The model's dependencies upon variables are examiend by producing a variable importance plot that displays the mean decrease in accuracy and the decrease in Gini impurity for each variable used in the model.
+
+Each subset of data used is split into a training set (80% of the data) and a test set (20%) before each machine learning algorithm is applied using the following function:
+
+```r
+split_df <- function(dataframe, seed = 100) {
+  if (!is.null(seed)) set.seed(seed)
+  index <- 1:nrow(dataframe)
+  trainindex <- sample(index, trunc(length(index) * 0.8))
+  train <- dataframe[trainindex, ]
+  test <- dataframe[-trainindex, ]
+  list(train = train,test = test)
+}
+```
+
+## Random Forests: Prison or No-Prison?
+
+### Trials by Jury
+
+```r
+# Assign the results of partitioning the data to data frame 'split'
+split = 
+  split_df(jury_trials)
+
+# Assign random sample to training set
+train = 
+  split$train
+
+# Assign random sample to testing set
+test = 
+  split$test
+ ```
+ 
+ Explanation of jury trial model.
 
 ```r
 #### Detecting Bias with Random Forests ####
 
-set.seed(71)
+set.seed(100)
 
 # Jury Random Forest
 jury_rf =
@@ -1334,7 +1369,7 @@ jury_rf =
     primary.charge +
     class,
   importance = T,
-  data = jury_trials, 
+  data = bench_trials, 
   ntree=500)
 ```
 
@@ -1434,6 +1469,10 @@ prp(tree_1)
 ```
 
 ![alt text17](https://github.com/ThomasPepperz/Using-ML-To-Detect-Bias-in-Criminal-Sentencing-Data/blob/master/jury-rf-tree-1.png)
+
+### Trials by Judge (Bench Trials)
+
+
 
 
 Note: Please report any bugs, coding errors, or broken web links to Thomas A. Pepperz at email thomaspepperz@icloud.com
